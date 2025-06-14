@@ -13,10 +13,7 @@
 
     <%@ include file="/components/navbar.jsp" %>
 
-    <div class="container mt-4">
-        <h1>Bem-vindo!</h1>
-        <p>Conteúdo da home.</p>
-    </div>
+    <%@ include file="/components/formularioDadosUsuario.jsp" %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
