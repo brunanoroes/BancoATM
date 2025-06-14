@@ -1,35 +1,24 @@
-EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'
---ALTER TABLE MYSQL.administrador DROP CONSTRAINT FK_user_adm;
---ALTER TABLE MYSQL.USUARIOS DROP PRIMARY KEY;
---DELETE FROM mysql.administrador;
---DELETE FROM mysql.usuarios;
-ALTER TABLE mysql.usuarios AUTO_INCREMENT=1;
-ALTER TABLE mysql.Categoria AUTO_INCREMENT=1;
+-- Usuários
+INSERT INTO USUARIO (NOME, EMAIL, SENHA_HASH, TIPO_USUARIO)
+VALUES 
+  ('Admin Master', 'admin@exemplo.com', SHA2('admin123', 256), 'ADMIN'),
+  ('Bruna Assis', 'brunassisn@gmail.com', SHA2('bruna123', 256), 'NORMAL');
 
-INSERT INTO mysql.usuarios (nome, cpf, endereco, data_nascimento,senha) 
-	VALUES ('LuizGustavo', '858', 'Av 250','1980-01-01', '123');
+-- Contas
+INSERT INTO CONTA (USUARIO_ID, SALDO, NUMERO_CONTA, TIPO_CONTA)
+VALUES 
+  (1, 10000.00, '0001-ADM', 'CORRENTE'),
+  (2, 1500.00, '0002-JS', 'DIGITAL');
 
+-- Movimentações (para conta do João)
+INSERT INTO MOVIMENTACAO (CONTA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO)
+VALUES 
+  (2, 'ENTRADA', 1000.00, 'Depósito inicial'),
+  (2, 'SAIDA', 200.00, 'Pagamento de boleto'),
+  (2, 'ENTRADA', 700.00, 'Transferência recebida');
 
-INSERT INTO mysql.administrador (id_usuario, tipo_administrador) 
-	VALUES (1, 'cadastrador');
-
-INSERT INTO mysql.Categoria (categoria, descricao) 
-	VALUES ('Alimentação', 'Gastos com alimentação');
-INSERT INTO mysql.Categoria (categoria, descricao) 
-	VALUES ('Transporte', 'Gastos com transporte');
-INSERT INTO mysql.Categoria (categoria, descricao) 
-	VALUES ('Saude', 'Gastos com Saude');
-INSERT INTO mysql.Categoria (categoria, descricao) 
-	VALUES ('Residencial', 'Gastos com Luz, água e gás');
-INSERT INTO mysql.Categoria (categoria, descricao) 
-	VALUES ('Aluguel', 'Gastos/Receita com aluguel');
-INSERT INTO mysql.Categoria (categoria, descricao) 
-	VALUES ('Salário', 'Receitas com salários ou proventos');
-INSERT INTO mysql.Categoria (categoria, descricao) 
-	VALUES ('Loteria', 'Gastos/Receita com Loteria');
-INSERT INTO mysql.Categoria (categoria, descricao) 
-	VALUES ('Conta investimento', 'Gastos/Receita com investimentos');
-
-INSERT INTO mysql.Transacao (valor, data_op, cat, tipo, recorrencia) 
-	VALUES ('10,00', '2024-01-01', 1, 1, 0);
-
+-- Investimentos (para conta do João)
+INSERT INTO INVESTIMENTO (CONTA_ID, TIPO_INVESTIMENTO, VALOR_APLICADO, DATA_VENCIMENTO, RENDIMENTO_ESPERADO)
+VALUES 
+  (2, 'CDB', 500.00, DATE_ADD(NOW(), INTERVAL 6 MONTH), 550.00),
+  (2, 'Tesouro Direto', 300.00, DATE_ADD(NOW(), INTERVAL 1 YEAR), 360.00);
