@@ -58,7 +58,7 @@
     <div class="form-card">
         <h2>Editar Usuário / Cadastrar Usuário</h2>
 
-        <form action="SalvarUsuario.jsp" method="post" accept-charset="UTF-8">
+        <form action="UsuarioController" method="post" accept-charset="UTF-8">
             <input type="hidden" name="usuarioId">
 
             <div class="mb-3">

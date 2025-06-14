@@ -22,4 +22,12 @@
       <description>Keep a copy of the generated servlet class' java code.</description>
     </property>
   </jsp-config>
+  <servlet>
+    <servlet-name>UsuarioController</servlet-name>
+    <servlet-class>Controllers.UsuarioController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UsuarioController</servlet-name>
+    <url-pattern>/UsuarioController</url-pattern>
+  </servlet-mapping>
 </glassfish-web-app>
