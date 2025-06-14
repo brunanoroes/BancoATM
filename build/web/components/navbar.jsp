@@ -34,7 +34,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">
+    <a class="navbar-brand" href="/BancoATM/Home.jsp">
       <i class="bi bi-bank"></i> MeuBanco
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"

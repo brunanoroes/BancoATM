@@ -4,41 +4,50 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.sql.*;
 
 @WebServlet(name = "UsuarioServlet", urlPatterns = {"/UsuarioServlet"})
 public class UsuarioServlet extends HttpServlet {
-
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/banco?useSSL=false&serverTimezone=UTC";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/banco?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
     private static final String DB_USER = "root";
-    private static final String DB_PASS = "Senha@1";
+    private static final String DB_PASS = "nova_senha";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Receber dados do formulário
+
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
         String nome = request.getParameter("nome");
         String email = request.getParameter("email");
         String senha = request.getParameter("senha");
-        String tipoUsuario = "NORMAL"; // fixo, já que no formulário não tem esse campo
+        String tipoUsuario = "NORMAL";
 
-        // Validar se os campos obrigatórios não estão vazios (pode melhorar depois)
+        System.out.println("Recebido nome: " + nome);
+        System.out.println("Recebido email: " + email);
+        System.out.println("Recebido senha: " + senha);
+
         if (nome == null || email == null || senha == null ||
             nome.trim().isEmpty() || email.trim().isEmpty() || senha.trim().isEmpty()) {
+            out.println("<p style='color:red;'>Campos obrigatórios estão vazios!</p>");
             return;
         }
 
         try {
-            // Carregar driver JDBC
+            // Carrega o driver JDBC
             Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Driver JDBC carregado.");
 
-            // Abrir conexão
             try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
-                // Criar hash da senha
-                String senhaHash = hashSenha(senha);
+                System.out.println("Conexão com o banco estabelecida.");
+                conn.setAutoCommit(true); // Garante o commit automático
 
-                // Preparar SQL INSERT
+                String senhaHash = hashSenha(senha);
+                System.out.println("Senha hash gerada: " + senhaHash);
+
                 String sql = "INSERT INTO USUARIO (NOME, EMAIL, SENHA_HASH, TIPO_USUARIO) VALUES (?, ?, ?, ?)";
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     stmt.setString(1, nome);
@@ -46,13 +55,20 @@ public class UsuarioServlet extends HttpServlet {
                     stmt.setString(3, senhaHash);
                     stmt.setString(4, tipoUsuario);
 
-                    stmt.executeUpdate();
+                    int linhasAfetadas = stmt.executeUpdate();
+                    if (linhasAfetadas > 0) {
+                        System.out.println("Inserção realizada. Linhas afetadas: " + linhasAfetadas);
+                        out.println("<p style='color:green;'>Usuário cadastrado com sucesso!</p>");
+                    } else {
+                        out.println("<p style='color:red;'>Nenhuma linha inserida no banco!</p>");
+                    }
                 }
             }
 
-
         } catch (Exception e) {
+            System.out.println("Erro ao inserir no banco:");
             e.printStackTrace();
+            out.println("<p style='color:red;'>Erro ao cadastrar usuário: " + e.getMessage() + "</p>");
         }
     }
 
