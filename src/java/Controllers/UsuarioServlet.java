@@ -8,11 +8,10 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.sql.*;
 
+import Models.Conexao;
+
 @WebServlet(name = "UsuarioServlet", urlPatterns = {"/UsuarioServlet"})
 public class UsuarioServlet extends HttpServlet {
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/banco?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-    private static final String DB_USER = "root";
-    private static final String DB_PASS = "nova_senha";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -37,11 +36,8 @@ public class UsuarioServlet extends HttpServlet {
         }
 
         try {
-            // Carrega o driver JDBC
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            System.out.println("Driver JDBC carregado.");
-
-            try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
+            Conexao conexaoBD = new Conexao();
+            try (Connection conn = conexaoBD.getConexao()) {
                 System.out.println("Conexão com o banco estabelecida.");
                 conn.setAutoCommit(true); // Garante o commit automático
 
@@ -63,6 +59,8 @@ public class UsuarioServlet extends HttpServlet {
                         out.println("<p style='color:red;'>Nenhuma linha inserida no banco!</p>");
                     }
                 }
+            } finally {
+                conexaoBD.closeConexao();
             }
 
         } catch (Exception e) {

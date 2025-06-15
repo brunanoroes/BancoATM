@@ -11,7 +11,7 @@ public class Conexao {
                 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver"); //load driver  
-            conexao = DriverManager.getConnection("jdbc:mysql://127.0.0.3:3306/MySQL", "root", "Senha@1");
+            conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/banco?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", "root", "nova_senha");
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Nao foi possivel efetuar uma conexao com o BD!");
