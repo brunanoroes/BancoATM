@@ -68,7 +68,7 @@
 
 <body>
     <div class="container mt-4 form-card">
-            <table id="extrato-table" class="table table-dark table-striped">
+            <table id="contas-table" class="table table-dark table-striped">
             <thead>
                 <tr><th>Conta</th><th>Saldo</th></tr>
             </thead>
@@ -107,21 +107,21 @@
     mostrarErroNaTela('Você precisa estar logado para acessar esta página.');
     } else {
 
-  fetch('Contas?usuarioId=' + usuarioId)
+  fetch('Conta?usuarioId=' + usuarioId)
     .then(res => res.json())
     .then(data => {
-      const tbody = document.querySelector('#extrato-table tbody');
+      const tbody = document.querySelector('#contas-table tbody');
       tbody.innerHTML = '';
 
-      data.forEach(mov => {
+      data.forEach(conta => {
         const tr = document.createElement('tr');
 
         const tdTipo = document.createElement('td');
-        tdTipo.textContent = mov.tipo;
+        tdTipo.textContent = conta.tipo;
         tr.appendChild(tdTipo);
 
         const tdSaldo = document.createElement('td');
-        tdSaldo.textContent = mov.saldo;
+        tdSaldo.textContent = conta.saldo;
         tr.appendChild(tdSaldo);
 
         tbody.appendChild(tr);
@@ -129,8 +129,8 @@
 
     })
     .catch(err => {
-      console.error('Erro ao carregar contas:', err);
-      alert('Erro ao carregar contas.');
+      console.error('Erro ao carregar contas no front:', err);
+      alert('Erro ao carregar contas no front.');
     });
 }
 </script>

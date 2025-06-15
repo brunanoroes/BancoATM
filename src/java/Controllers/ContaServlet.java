@@ -72,9 +72,10 @@ public class ContaServlet extends HttpServlet {
         for (int i = 0; i < contas.size(); i++) {
             Conta c = contas.get(i);
             json.append("{")
-                .append("\"tipo\":\"").append(escapeJson(c.getTipo())).append("\",")
-                .append("\"valor\":").append(c.getSaldo()).append(",")
-                .append("}");
+            .append("\"tipo\":\"").append(escapeJson(c.getTipo())).append("\",")
+            .append("\"saldo\":").append(c.getSaldo())
+            .append("}");
+
             if (i < contas.size() - 1) json.append(",");
         }
         json.append("]");
