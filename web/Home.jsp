@@ -62,6 +62,7 @@
         <h2>Bem-vindo!</h2>
 
        <%@ include file="/components/contas.jsp" %>
+       <%@ include file="/components/cadastrocontas.jsp" %>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
