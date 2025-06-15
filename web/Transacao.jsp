@@ -114,18 +114,17 @@
                     <th>Descrição</th>
                     <th>Tipo</th>
                     <th>Valor</th>
-                    <th>Conta Origem</th>
-                    <th>Conta Destino</th>
+                    <th>Nº Conta Origem</th>
+                    <th>Nº Conta Destino</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Exemplo de dados -->
                 <tr>
                     <td>12/06/2025</td>
                     <td>Pagamento de boleto</td>
                     <td>Saque</td>
                     <td class="text-danger">R$ -300,00</td>
-                    <td>Conta Corrente</td>
+                    <td>4356</td>
                     <td>-</td>
                 </tr>
                 <tr>
@@ -133,7 +132,7 @@
                     <td>Depósito salário</td>
                     <td>Depósito</td>
                     <td class="text-success">R$ 3.500,00</td>
-                    <td>Conta Corrente</td>
+                    <td>4356</td>
                     <td>-</td>
                 </tr>
                 <tr>
@@ -141,10 +140,11 @@
                     <td>Transferência entre contas</td>
                     <td>Transferência</td>
                     <td class="text-warning">R$ 1.000,00</td>
-                    <td>Conta Corrente</td>
-                    <td>Conta Poupança</td>
+                    <td>4356</td>
+                    <td>8290 - João Silva</td>
                 </tr>
             </tbody>
+
         </table>
     </div>
 
