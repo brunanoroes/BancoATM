@@ -128,7 +128,7 @@
         </form>
 
         <!-- Tabela de transações existentes -->
-        <h4 class="form-label mt-4">Histórico de Transações</h4>
+        <h4 class="form-label mt-4">Últimas Transações</h4>
         <%@ include file="/components/movimentacoes.jsp" %>
         <a id="link-ver-mais" href="#" class="ver-mais-link">Ver mais</a>
     </div>
