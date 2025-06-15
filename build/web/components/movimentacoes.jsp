@@ -70,7 +70,7 @@
     <div class="container mt-4 form-card">
       <table id="extrato-table" class="table table-dark table-striped">
         <thead>
-            <tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Conta</th></tr>
+            <tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Valor</th><th>Nº Conta Origem</th><th>Nº Conta Destino</th></tr>
         </thead>
         <tbody>
             <!-- dados virão aqui via JS -->
@@ -124,11 +124,16 @@
         tdDesc.textContent = mov.descricao;
         tr.appendChild(tdDesc);
 
+        // NOVA CÉLULA TIPO
+        const tdTipo = document.createElement('td');
+        tdTipo.textContent = mov.tipo;  // Exemplo: 'ENTRADA' ou 'SAIDA'
+        tr.appendChild(tdTipo);
+
         const tdValor = document.createElement('td');
 
         var sinal = (mov.tipo === 'ENTRADA') ? '+' : '-';
 
-        tdValor.textContent = sinal + " R$ " + Number(mov.valor).toFixed(2).replace('.', ',');
+        tdValor.textContent = "R$ " + sinal + Number(mov.valor).toFixed(2).replace('.', ',');
 
         tdValor.className = (mov.tipo === 'ENTRADA') ? 'valor-positivo' : 'valor-negativo';
 

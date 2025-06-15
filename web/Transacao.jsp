@@ -51,6 +51,28 @@
     table thead th {
         color: #ffc107;
     }
+    .ver-mais-link {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #ffc107; /* amarelo banco */
+        color: #212529; /* texto escuro para contraste */
+        font-weight: 600;
+        border-radius: 8px;
+        text-decoration: none;
+        box-shadow: 0 4px 8px rgba(255, 193, 7, 0.4);
+        transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        margin-top: 20px;
+    }
+
+    .ver-mais-link:hover,
+    .ver-mais-link:focus {
+        background-color: #e0a800; /* amarelo mais escuro */
+        color: #fff;
+        box-shadow: 0 6px 12px rgba(224, 168, 0, 0.6);
+        text-decoration: none;
+        cursor: pointer;
+    }
+
   </style>
 </head>
 <body>
@@ -107,47 +129,10 @@
 
         <!-- Tabela de transações existentes -->
         <h4 class="form-label mt-4">Histórico de Transações</h4>
-        <table class="table table-dark table-striped">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Descrição</th>
-                    <th>Tipo</th>
-                    <th>Valor</th>
-                    <th>Nº Conta Origem</th>
-                    <th>Nº Conta Destino</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>12/06/2025</td>
-                    <td>Pagamento de boleto</td>
-                    <td>Saque</td>
-                    <td class="text-danger">R$ -300,00</td>
-                    <td>4356</td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td>10/06/2025</td>
-                    <td>Depósito salário</td>
-                    <td>Depósito</td>
-                    <td class="text-success">R$ 3.500,00</td>
-                    <td>4356</td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td>08/06/2025</td>
-                    <td>Transferência entre contas</td>
-                    <td>Transferência</td>
-                    <td class="text-warning">R$ 1.000,00</td>
-                    <td>4356</td>
-                    <td>8290 - João Silva</td>
-                </tr>
-            </tbody>
-
-        </table>
-    </div>
         <%@ include file="/components/movimentacoes.jsp" %>
+        <a href="/BancoATM/Extrato.jsp" class="ver-mais-link">Ver mais</a>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
