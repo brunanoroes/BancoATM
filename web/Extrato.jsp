@@ -70,86 +70,8 @@
     <%@ include file="/components/navbar.jsp" %>
     <div class="container mt-4 form-card">
             <h2>Extrato Financeiro</h2>
-            <table id="extrato-table" class="table table-dark table-striped">
-            <thead>
-                <tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Conta</th></tr>
-            </thead>
-            <tbody>
-                <!-- dados virão aqui via JS -->
-            </tbody>
-            </table>
+            <%@ include file="/components/movimentacoes.jsp" %>
     </div>
 
-<script>
-    function getParametro(nome) {
-        var regex = new RegExp('[\\?&]' + nome + '=([^&#]*)');
-        var resultados = regex.exec(window.location.search);
-        return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
-    }
-
-    // Função para mostrar erro na tela
-    function mostrarErroNaTela(mensagem) {
-    // Seleciona o container onde quer mostrar o erro, ou cria um novo elemento
-    var container = document.querySelector('.container') || document.body;
-
-    // Cria um elemento p com a mensagem
-    var erroElem = document.createElement('p');
-    erroElem.style.color = 'red';
-    erroElem.style.fontWeight = 'bold';
-    erroElem.style.fontSize = '1.2rem';
-    erroElem.textContent = mensagem;
-
-    // Limpa conteúdo anterior (se quiser)
-    container.innerHTML = '';
-    // Adiciona o erro
-    container.appendChild(erroElem);
-    }
-    var usuarioId = getParametro('usuarioId');
-    if (!usuarioId) {
-    mostrarErroNaTela('Você precisa estar logado para acessar esta página.');
-    } else {
-
-  fetch('Movimentacao?usuarioId=' + usuarioId)
-    .then(res => res.json())
-    .then(data => {
-      const tbody = document.querySelector('#extrato-table tbody');
-      tbody.innerHTML = '';
-
-      data.forEach(mov => {
-        const tr = document.createElement('tr');
-
-        const tdData = document.createElement('td');
-        tdData.textContent = mov.data; // já está em formato "dd/mm/yyyy"
-        tr.appendChild(tdData);
-
-        const tdDesc = document.createElement('td');
-        tdDesc.textContent = mov.descricao;
-        tr.appendChild(tdDesc);
-
-        const tdValor = document.createElement('td');
-
-        var sinal = (mov.tipo === 'ENTRADA') ? '+' : '-';
-
-        tdValor.textContent = sinal + " R$ " + Number(mov.valor).toFixed(2).replace('.', ',');
-
-        tdValor.className = (mov.tipo === 'ENTRADA') ? 'valor-positivo' : 'valor-negativo';
-
-        tr.appendChild(tdValor);
-
-
-        const tdConta = document.createElement('td');
-        tdConta.textContent = mov.conta;
-        tr.appendChild(tdConta);
-
-        tbody.appendChild(tr);
-        });
-
-    })
-    .catch(err => {
-      console.error('Erro ao carregar movimentações:', err);
-      alert('Erro ao carregar extrato.');
-    });
-}
-</script>
 </body>
 </html>

@@ -15,19 +15,9 @@ public class Movimentacao {
         this.conta = conta;
     }
 
-    public String getData() {
-        return data;
-    }
-    public String getDescricao() {
-        return descricao;
-    }
-    public String getTipo() {
-        return tipo;
-    }
-    public double getValor() {
-        return valor;
-    }
-    public String getConta() {
-        return conta;
-    }
+    public String getData() { return data; }
+    public String getDescricao() { return descricao; }
+    public String getTipo() { return tipo; }
+    public double getValor() { return valor; }
+    public String getConta() { return conta; }
 }

@@ -67,66 +67,10 @@
         </p>
 
         <h4 class="form-label mt-4">Últimas Movimentações</h4>
-        <table class="table table-striped table-dark">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Conta</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>12/06/2025</td>
-                    <td>Pagamento Energia</td>
-                    <td class="text-danger">R$ -230,00</td>
-                    <td>Conta Corrente</td>
-                </tr>
-                <tr>
-                    <td>10/06/2025</td>
-                    <td>Depósito Salário</td>
-                    <td class="text-success">R$ 3.500,00</td>
-                    <td>Conta Corrente</td>
-                </tr>
-                <tr>
-                    <td>09/06/2025</td>
-                    <td>Compra Supermercado</td>
-                    <td class="text-danger">R$ -450,50</td>
-                    <td>Conta Cartão</td>
-                </tr>
-                <tr>
-                    <td>07/06/2025</td>
-                    <td>Transferência recebida</td>
-                    <td class="text-success">R$ 1.200,00</td>
-                    <td>Conta Poupança</td>
-                </tr>
-            </tbody>
-        </table>
-
+        <%@ include file="/components/movimentacoes.jsp" %>
+        <a href="/BancoATM/Extrato.jsp?usuarioId=1">Ver Mais</a>
         <h4 class="form-label mt-4">Contas</h4>
-        <table class="table table-bordered table-dark">
-            <thead>
-                <tr>
-                    <th>Conta</th>
-                    <th>Saldo</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Conta Corrente</td>
-                    <td>R$ 10.000,00</td>
-                </tr>
-                <tr>
-                    <td>Conta Poupança</td>
-                    <td>R$ 4.480,75</td>
-                </tr>
-                <tr>
-                    <td>Conta Cartão</td>
-                    <td>R$ -1.000,00</td>
-                </tr>
-            </tbody>
-        </table>
+       <%@ include file="/components/contas.jsp" %>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
