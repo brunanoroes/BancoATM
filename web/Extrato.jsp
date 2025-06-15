@@ -52,18 +52,14 @@
     padding: 12px 20px;
   }
 
-  #extrato-table td {
-    color: #e1e1e1;
-  }
-
   /* Valores positivos e negativos */
   .valor-positivo {
-    color: #28a745; /* verde */
+    color: #28a745 !important; /* verde */
     font-weight: bold;
   }
 
   .valor-negativo {
-    color: #dc3545; /* vermelho */
+    color: #dc3545 !important; /* vermelho */
     font-weight: bold;
   }
 </style>
@@ -85,9 +81,35 @@
     </div>
 
 <script>
-  const usuarioId = 1; // pode pegar de um input, ou query param
+    function getParametro(nome) {
+        var regex = new RegExp('[\\?&]' + nome + '=([^&#]*)');
+        var resultados = regex.exec(window.location.search);
+        return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
+    }
 
-  fetch(`Movimentacao?usuarioId=1`)
+    // Função para mostrar erro na tela
+    function mostrarErroNaTela(mensagem) {
+    // Seleciona o container onde quer mostrar o erro, ou cria um novo elemento
+    var container = document.querySelector('.container') || document.body;
+
+    // Cria um elemento p com a mensagem
+    var erroElem = document.createElement('p');
+    erroElem.style.color = 'red';
+    erroElem.style.fontWeight = 'bold';
+    erroElem.style.fontSize = '1.2rem';
+    erroElem.textContent = mensagem;
+
+    // Limpa conteúdo anterior (se quiser)
+    container.innerHTML = '';
+    // Adiciona o erro
+    container.appendChild(erroElem);
+    }
+    var usuarioId = getParametro('usuarioId');
+    if (!usuarioId) {
+    mostrarErroNaTela('Você precisa estar logado para acessar esta página.');
+    } else {
+
+  fetch('Movimentacao?usuarioId=' + usuarioId)
     .then(res => res.json())
     .then(data => {
       const tbody = document.querySelector('#extrato-table tbody');
@@ -97,7 +119,7 @@
         const tr = document.createElement('tr');
 
         const tdData = document.createElement('td');
-        tdData.textContent = mov.data;
+        tdData.textContent = mov.data; // já está em formato "dd/mm/yyyy"
         tr.appendChild(tdData);
 
         const tdDesc = document.createElement('td');
@@ -105,21 +127,29 @@
         tr.appendChild(tdDesc);
 
         const tdValor = document.createElement('td');
-        tdValor.textContent = `R$ ${mov.valor.toFixed(2)}`;
-        tdValor.className = mov.tipo === 'ENTRADA' ? 'valor-positivo' : 'valor-negativo';
+
+        var sinal = (mov.tipo === 'ENTRADA') ? '+' : '-';
+
+        tdValor.textContent = sinal + " R$ " + Number(mov.valor).toFixed(2).replace('.', ',');
+
+        tdValor.className = (mov.tipo === 'ENTRADA') ? 'valor-positivo' : 'valor-negativo';
+
         tr.appendChild(tdValor);
+
 
         const tdConta = document.createElement('td');
         tdConta.textContent = mov.conta;
         tr.appendChild(tdConta);
 
         tbody.appendChild(tr);
-      });
+        });
+
     })
     .catch(err => {
       console.error('Erro ao carregar movimentações:', err);
       alert('Erro ao carregar extrato.');
     });
+}
 </script>
 </body>
 </html>
