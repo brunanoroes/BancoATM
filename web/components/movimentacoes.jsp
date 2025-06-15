@@ -70,7 +70,7 @@
     <div class="container mt-4 form-card">
       <table id="extrato-table" class="table table-dark table-striped">
         <thead>
-            <tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Valor</th><th>Nº Conta Origem</th><th>Nº Conta Destino</th></tr>
+            <tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Valor</th><th>Nº Conta</th></tr>
         </thead>
         <tbody>
             <!-- dados virão aqui via JS -->
@@ -84,7 +84,7 @@
         var resultados = regex.exec(window.location.search);
         return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
     }
-
+    
     // Função para mostrar erro na tela
     function mostrarErroNaTela(mensagem) {
     // Seleciona o container onde quer mostrar o erro, ou cria um novo elemento
@@ -103,55 +103,61 @@
     container.appendChild(erroElem);
     }
     var usuarioId = getParametro('usuarioId');
+    var limite = getParametro('limite');
     if (!usuarioId) {
     mostrarErroNaTela('Você precisa estar logado para acessar esta página.');
     } else {
 
-  fetch('Movimentacao?usuarioId=' + usuarioId)
-    .then(res => res.json())
-    .then(data => {
-      const tbody = document.querySelector('#extrato-table tbody');
-      tbody.innerHTML = '';
+    let url = 'Movimentacao?usuarioId=' + usuarioId;
+    if (limite) {
+      url += '&limite=' + limite;
+    }
 
-      data.forEach(mov => {
-        const tr = document.createElement('tr');
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector('#extrato-table tbody');
+        tbody.innerHTML = '';
 
-        const tdData = document.createElement('td');
-        tdData.textContent = mov.data; // já está em formato "dd/mm/yyyy"
-        tr.appendChild(tdData);
+        data.forEach(mov => {
+          const tr = document.createElement('tr');
 
-        const tdDesc = document.createElement('td');
-        tdDesc.textContent = mov.descricao;
-        tr.appendChild(tdDesc);
+          const tdData = document.createElement('td');
+          tdData.textContent = mov.data; // já está em formato "dd/mm/yyyy"
+          tr.appendChild(tdData);
 
-        // NOVA CÉLULA TIPO
-        const tdTipo = document.createElement('td');
-        tdTipo.textContent = mov.tipo;  // Exemplo: 'ENTRADA' ou 'SAIDA'
-        tr.appendChild(tdTipo);
+          const tdDesc = document.createElement('td');
+          tdDesc.textContent = mov.descricao;
+          tr.appendChild(tdDesc);
 
-        const tdValor = document.createElement('td');
+          // NOVA CÉLULA TIPO
+          const tdTipo = document.createElement('td');
+          tdTipo.textContent = mov.tipo;
+          tr.appendChild(tdTipo);
 
-        var sinal = (mov.tipo === 'ENTRADA') ? '+' : '-';
+          const tdValor = document.createElement('td');
 
-        tdValor.textContent = "R$ " + sinal + Number(mov.valor).toFixed(2).replace('.', ',');
+          var sinal = (mov.tipo === 'ENTRADA') ? '+' : '-';
 
-        tdValor.className = (mov.tipo === 'ENTRADA') ? 'valor-positivo' : 'valor-negativo';
+          tdValor.textContent = "R$ " + sinal + Number(mov.valor).toFixed(2).replace('.', ',');
 
-        tr.appendChild(tdValor);
+          tdValor.className = (mov.tipo === 'ENTRADA') ? 'valor-positivo' : 'valor-negativo';
+
+          tr.appendChild(tdValor);
+
+          const tdConta = document.createElement('td');
+          tdConta.textContent = mov.conta || ''; // ajuste conforme seu JSON
+          tr.appendChild(tdConta);
 
 
-        const tdConta = document.createElement('td');
-        tdConta.textContent = mov.conta;
-        tr.appendChild(tdConta);
-
-        tbody.appendChild(tr);
+          tbody.appendChild(tr);
         });
 
-    })
-    .catch(err => {
-      console.error('Erro ao carregar movimentações:', err);
-      alert('Erro ao carregar extrato.');
-    });
+      })
+      .catch(err => {
+        console.error('Erro ao carregar movimentações:', err);
+        alert('Erro ao carregar extrato.');
+      });
 }
 </script>
 </body>

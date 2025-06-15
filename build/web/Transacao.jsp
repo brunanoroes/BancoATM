@@ -123,16 +123,28 @@
             </div>
 
             <div class="col-12 text-end">
-                <button type="submit" class="btn btn-yellow">Registrar Transação</button>
+                <button type="submit" class="btn btn-warning">Registrar Transação</button>
             </div>
         </form>
 
         <!-- Tabela de transações existentes -->
         <h4 class="form-label mt-4">Histórico de Transações</h4>
         <%@ include file="/components/movimentacoes.jsp" %>
-        <a href="/BancoATM/Extrato.jsp" class="ver-mais-link">Ver mais</a>
+        <a id="link-ver-mais" href="#" class="ver-mais-link">Ver mais</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+<script>
+    function getParametro(nome) {
+        const regex = new RegExp('[\\?&]' + nome + '=([^&#]*)');
+        const resultados = regex.exec(window.location.search);
+        return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
+    }
+
+    if (usuarioId) {
+        const link = document.getElementById('link-ver-mais');
+        link.href = '/BancoATM/Extrato.jsp?usuarioId=' + encodeURIComponent(usuarioId);
+    }
+</script>

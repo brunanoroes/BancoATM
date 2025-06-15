@@ -46,7 +46,7 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="/BancoATM/Transacao.jsp?usuarioId=1"><i class="bi bi-cash-stack"></i> Transa&ccedil;&atilde;o</a>
+          <a class="nav-link" href="/BancoATM/Transacao.jsp?limite=4&usuarioId=1"><i class="bi bi-cash-stack"></i> Transa&ccedil;&atilde;o</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/BancoATM/Investimento.jsp?usuarioId=1"><i class="bi bi-graph-up-arrow"></i> Investimento</a>
