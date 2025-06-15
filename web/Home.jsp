@@ -61,16 +61,11 @@
     <div class="container mt-4 form-card">
         <h2>Bem-vindo!</h2>
 
-        <h4 class="form-label">Saldo Total:</h4>
-        <p style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">
-            R$ 15.480,75
-        </p>
+       <%@ include file="/components/contas.jsp" %>
 
         <h4 class="form-label mt-4">Últimas Movimentações</h4>
         <%@ include file="/components/movimentacoes.jsp" %>
         <a href="/BancoATM/Extrato.jsp?usuarioId=1">Ver Mais</a>
-        <h4 class="form-label mt-4">Contas</h4>
-       <%@ include file="/components/contas.jsp" %>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

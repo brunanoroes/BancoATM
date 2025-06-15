@@ -68,14 +68,23 @@
 
 <body>
     <div class="container mt-4 form-card">
-            <table id="contas-table" class="table table-dark table-striped">
-            <thead>
-                <tr><th>Conta</th><th>Saldo</th></tr>
-            </thead>
-            <tbody>
-                <!-- dados virão aqui via JS -->
-            </tbody>
-            </table>
+      <div>
+        <h4 class="form-label">Saldo Total:</h4>
+        <p id="saldo-total" style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">
+          <!-- Saldo será preenchido via JS -->
+        </p>
+      </div>
+      <div>
+        <h4 class="form-label mt-4">Contas</h4>
+        <table id="contas-table" class="table table-dark table-striped">
+          <thead>
+            <tr><th>Conta</th><th>Saldo</th></tr>
+          </thead>
+          <tbody>
+            <!-- dados virão aqui via JS -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
 <script>
@@ -106,7 +115,7 @@
     if (!usuarioId) {
     mostrarErroNaTela('Você precisa estar logado para acessar esta página.');
     } else {
-
+    let saldoTotal = 0;
   fetch('Conta?usuarioId=' + usuarioId)
     .then(res => res.json())
     .then(data => {
@@ -121,17 +130,28 @@
         tr.appendChild(tdTipo);
 
         const tdSaldo = document.createElement('td');
-        tdSaldo.textContent = conta.saldo;
+        tdSaldo.textContent = parseFloat(conta.saldo).toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        });
         tr.appendChild(tdSaldo);
 
-        tbody.appendChild(tr);
-        });
+        saldoTotal += parseFloat(conta.saldo);
 
+        tbody.appendChild(tr);
+      });
+
+      // Agora que terminou de somar, atualiza o valor na tela
+      document.getElementById('saldo-total').textContent = saldoTotal.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
     })
     .catch(err => {
       console.error('Erro ao carregar contas no front:', err);
       alert('Erro ao carregar contas no front.');
     });
+
 }
 </script>
 </body>

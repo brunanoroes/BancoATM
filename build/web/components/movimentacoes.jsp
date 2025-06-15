@@ -68,14 +68,14 @@
 
 <body>
     <div class="container mt-4 form-card">
-            <table id="extrato-table" class="table table-dark table-striped">
-            <thead>
-                <tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Conta</th></tr>
-            </thead>
-            <tbody>
-                <!-- dados virão aqui via JS -->
-            </tbody>
-            </table>
+      <table id="extrato-table" class="table table-dark table-striped">
+        <thead>
+            <tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Conta</th></tr>
+        </thead>
+        <tbody>
+            <!-- dados virão aqui via JS -->
+        </tbody>
+      </table>
     </div>
 
 <script>
