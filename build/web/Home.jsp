@@ -61,10 +61,75 @@
     <div class="container mt-4 form-card">
         <h2>Bem-vindo!</h2>
 
-       <%@ include file="/components/contas.jsp" %>
+        <div id="container-contas">
+            <%@ include file="/components/contas.jsp" %>
+        </div>
+
        <%@ include file="/components/cadastrocontas.jsp" %>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+<script>
+  function getParametro(nome) {
+    const regex = new RegExp('[\\?&]' + nome + '=([^&#]*)');
+    const resultados = regex.exec(window.location.search);
+    return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
+  }
+
+  function carregarContas() {
+    const usuarioId = getParametro('usuarioId');
+    if (!usuarioId) {
+      console.error('Usuário não está logado.');
+      return;
+    }
+
+    let saldoTotal = 0;
+    fetch('Conta?usuarioId=' + usuarioId)
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector('#contas-table tbody');
+        if (!tbody) return; // se a tabela ainda não estiver carregada
+
+        tbody.innerHTML = '';
+
+        data.forEach(conta => {
+          const tr = document.createElement('tr');
+
+          const tdConta = document.createElement('td');
+          tdConta.textContent = conta.conta;
+          tr.appendChild(tdConta);
+
+          const tdTipo = document.createElement('td');
+          tdTipo.textContent = conta.tipo;
+          tr.appendChild(tdTipo);
+
+          const tdData = document.createElement('td');
+          tdData.textContent = conta.data;
+          tr.appendChild(tdData);
+
+          const tdSaldo = document.createElement('td');
+          tdSaldo.textContent = parseFloat(conta.saldo).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          });
+          tr.appendChild(tdSaldo);
+
+          saldoTotal += parseFloat(conta.saldo);
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById('saldo-total').textContent = saldoTotal.toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        });
+      })
+      .catch(err => {
+        console.error('Erro ao carregar contas:', err);
+        alert('Erro ao carregar contas.');
+      });
+  }
+</script>
+

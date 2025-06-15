@@ -72,7 +72,19 @@
 
         if (result.status === "sucesso") {
           form.reset();
+
+          fetch('/BancoATM/components/contas.jsp')
+            .then(res => res.text())
+            .then(html => {
+              document.getElementById('container-contas').innerHTML = html;
+              carregarContas(); // <-- ⚠️ ESSENCIAL
+            })
+            .catch(erro => {
+              console.error('Erro ao atualizar lista de contas:', erro);
+            });
+
         }
+
 
       } catch (error) {
         console.error("Erro ao enviar requisição:", error);
