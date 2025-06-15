@@ -10,7 +10,7 @@ import java.sql.*;
 import Models.Conexao;
 
 @WebServlet(name = "CadastroContaServlet", urlPatterns = {"/CadastroConta"})
-public class CadastroContaServelet extends HttpServlet {
+public class CadastroContaServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
