@@ -62,10 +62,6 @@
         <h2>Bem-vindo!</h2>
 
        <%@ include file="/components/contas.jsp" %>
-
-        <h4 class="form-label mt-4">Últimas Movimentações</h4>
-        <%@ include file="/components/movimentacoes.jsp" %>
-        <a href="/BancoATM/Extrato.jsp?usuarioId=1">Ver Mais</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

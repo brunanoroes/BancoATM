@@ -10,6 +10,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+import java.text.SimpleDateFormat;
 
 @WebServlet(name = "ContaServlet", urlPatterns = {"/Conta"})
 public class ContaServlet extends HttpServlet {
@@ -35,9 +36,9 @@ public class ContaServlet extends HttpServlet {
 
         List<Conta> contas = new ArrayList<>();
 
-        String sql = "SELECT c.TIPO_CONTA, c.SALDO " +
+        String sql = "SELECT c.TIPO_CONTA, c.SALDO, c.NUMERO_CONTA, c.DATA_ABERTURA " +
                      "FROM CONTA c " +
-                     "WHERE c.USUARIO_ID = ? " ;
+                     "WHERE c.USUARIO_ID = ?";
 
         Conexao conexao = new Conexao();
         Connection conn = conexao.getConexao();
@@ -51,8 +52,12 @@ public class ContaServlet extends HttpServlet {
             while (rs.next()) {
                 String tipo = rs.getString("TIPO_CONTA");
                 Double saldo = rs.getDouble("SALDO");
+                String numeroConta = rs.getString("NUMERO_CONTA");
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                String dataAbertura = sdf.format(rs.getTimestamp("DATA_ABERTURA"));
 
-                contas.add(new Conta(tipo, saldo));
+
+                contas.add(new Conta(numeroConta, dataAbertura, tipo, saldo));
             }
 
             rs.close();
@@ -72,9 +77,11 @@ public class ContaServlet extends HttpServlet {
         for (int i = 0; i < contas.size(); i++) {
             Conta c = contas.get(i);
             json.append("{")
-            .append("\"tipo\":\"").append(escapeJson(c.getTipo())).append("\",")
-            .append("\"saldo\":").append(c.getSaldo())
-            .append("}");
+                .append("\"tipo\":\"").append(escapeJson(c.getTipo())).append("\",")
+                .append("\"saldo\":").append(c.getSaldo()).append(",")
+                .append("\"conta\":\"").append(escapeJson(c.getConta())).append("\",")
+                .append("\"data\":\"").append(escapeJson(c.getData())).append("\"")
+                .append("}");
 
             if (i < contas.size() - 1) json.append(",");
         }
@@ -83,7 +90,6 @@ public class ContaServlet extends HttpServlet {
         response.getWriter().write(json.toString());
     }
 
-    // Função simples para escapar aspas e barras em JSON
     private String escapeJson(String str) {
         if (str == null) return "";
         return str.replace("\\", "\\\\")
@@ -92,3 +98,4 @@ public class ContaServlet extends HttpServlet {
                   .replace("\r", "\\r");
     }
 }
+

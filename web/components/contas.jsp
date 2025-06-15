@@ -78,7 +78,7 @@
         <h4 class="form-label mt-4">Contas</h4>
         <table id="contas-table" class="table table-dark table-striped">
           <thead>
-            <tr><th>Conta</th><th>Saldo</th></tr>
+            <tr><th>Conta</th><th>Tipo</th><th>Data de Abertura</th><th>Saldo</th></tr>
           </thead>
           <tbody>
             <!-- dados virão aqui via JS -->
@@ -123,23 +123,31 @@
       tbody.innerHTML = '';
 
       data.forEach(conta => {
-        const tr = document.createElement('tr');
+      const tr = document.createElement('tr');
 
-        const tdTipo = document.createElement('td');
-        tdTipo.textContent = conta.tipo;
-        tr.appendChild(tdTipo);
+      const tdConta = document.createElement('td');
+      tdConta.textContent = conta.conta;
+      tr.appendChild(tdConta);
 
-        const tdSaldo = document.createElement('td');
-        tdSaldo.textContent = parseFloat(conta.saldo).toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        });
-        tr.appendChild(tdSaldo);
+      const tdTipo = document.createElement('td');
+      tdTipo.textContent = conta.tipo;
+      tr.appendChild(tdTipo);
 
-        saldoTotal += parseFloat(conta.saldo);
+      const tdData = document.createElement('td');
+      tdData.textContent = conta.data;
+      tr.appendChild(tdData);
 
-        tbody.appendChild(tr);
+      const tdSaldo = document.createElement('td');
+      tdSaldo.textContent = parseFloat(conta.saldo).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
       });
+      tr.appendChild(tdSaldo);
+
+      saldoTotal += parseFloat(conta.saldo);
+
+      tbody.appendChild(tr);
+    });
 
       // Agora que terminou de somar, atualiza o valor na tela
       document.getElementById('saldo-total').textContent = saldoTotal.toLocaleString('pt-BR', {
@@ -148,8 +156,8 @@
       });
     })
     .catch(err => {
-      console.error('Erro ao carregar contas no front:', err);
-      alert('Erro ao carregar contas no front.');
+      console.error('Erro ao carregar contas:', err);
+      alert('Erro ao carregar contas.');
     });
 
 }
