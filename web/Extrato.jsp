@@ -5,94 +5,121 @@
   <meta charset="UTF-8" />
   <title>Extrato Financeiro</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+   <style>
+  body {
+    background-color: #f8f9fa;
+  }
 
-  <style>
-    body {
-        background-color: #f8f9fa;
-    }
+  .form-card {
+    background-color: #212529; /* bg-dark */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    padding: 30px;
+  }
 
-    .extrato-card {
-        background-color: #212529;
-        color: white;
-        border-radius: 12px;
-        padding: 25px 30px;
-        margin-top: 30px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-    }
+  h2 {
+    color: #ffffff;
+    margin-bottom: 20px;
+  }
 
-    h2 {
-        color: #ffc107;
-        margin-bottom: 20px;
-    }
+  /* Estilo da tabela */
+  #extrato-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.75rem; /* espaço entre as linhas */
+  }
 
-    .table thead th {
-        border-bottom: 2px solid #ffc107;
-    }
+  #extrato-table thead tr {
+    background-color: #343a40;
+    color: #ffc107; /* amarelo banco */
+    text-align: left;
+    font-weight: 600;
+  }
 
-    .table-dark tbody tr:hover {
-        background-color: #343a40;
-    }
+  #extrato-table tbody tr {
+    background-color: #2c3035;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+  }
 
-    .valor-positivo {
-        color: #28a745; /* verde */
-        font-weight: 600;
-    }
+  #extrato-table tbody tr:hover {
+    background-color: #3e444a;
+  }
 
-    .valor-negativo {
-        color: #dc3545; /* vermelho */
-        font-weight: 600;
-    }
-  </style>
+  #extrato-table th, #extrato-table td {
+    padding: 12px 20px;
+  }
+
+  #extrato-table td {
+    color: #e1e1e1;
+  }
+
+  /* Valores positivos e negativos */
+  .valor-positivo {
+    color: #28a745; /* verde */
+    font-weight: bold;
+  }
+
+  .valor-negativo {
+    color: #dc3545; /* vermelho */
+    font-weight: bold;
+  }
+</style>
+
 </head>
+
 <body>
-
     <%@ include file="/components/navbar.jsp" %>
-
-    <div class="container">
-        <div class="extrato-card">
+    <div class="container mt-4 form-card">
             <h2>Extrato Financeiro</h2>
-
-            <table class="table table-dark table-striped">
-                <thead>
-                    <tr>
-                        <th>Data</th>
-                        <th>Descrição</th>
-                        <th>Valor</th>
-                        <th>Conta</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Dados estáticos para exemplo -->
-                    <tr>
-                        <td>12/06/2025</td>
-                        <td>Pagamento Energia</td>
-                        <td class="valor-negativo">R$ -230,00</td>
-                        <td>Conta Corrente</td>
-                    </tr>
-                    <tr>
-                        <td>10/06/2025</td>
-                        <td>Depósito Salário</td>
-                        <td class="valor-positivo">R$ 3.500,00</td>
-                        <td>Conta Corrente</td>
-                    </tr>
-                    <tr>
-                        <td>09/06/2025</td>
-                        <td>Compra Supermercado</td>
-                        <td class="valor-negativo">R$ -450,50</td>
-                        <td>Conta Cartão</td>
-                    </tr>
-                    <tr>
-                        <td>07/06/2025</td>
-                        <td>Transferência recebida</td>
-                        <td class="valor-positivo">R$ 1.200,00</td>
-                        <td>Conta Poupança</td>
-                    </tr>
-                </tbody>
+            <table id="extrato-table" class="table table-dark table-striped">
+            <thead>
+                <tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Conta</th></tr>
+            </thead>
+            <tbody>
+                <!-- dados virão aqui via JS -->
+            </tbody>
             </table>
-        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const usuarioId = 1; // pode pegar de um input, ou query param
+
+  fetch(`Movimentacao?usuarioId=1`)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.querySelector('#extrato-table tbody');
+      tbody.innerHTML = '';
+
+      data.forEach(mov => {
+        const tr = document.createElement('tr');
+
+        const tdData = document.createElement('td');
+        tdData.textContent = mov.data;
+        tr.appendChild(tdData);
+
+        const tdDesc = document.createElement('td');
+        tdDesc.textContent = mov.descricao;
+        tr.appendChild(tdDesc);
+
+        const tdValor = document.createElement('td');
+        tdValor.textContent = `R$ ${mov.valor.toFixed(2)}`;
+        tdValor.className = mov.tipo === 'ENTRADA' ? 'valor-positivo' : 'valor-negativo';
+        tr.appendChild(tdValor);
+
+        const tdConta = document.createElement('td');
+        tdConta.textContent = mov.conta;
+        tr.appendChild(tdConta);
+
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(err => {
+      console.error('Erro ao carregar movimentações:', err);
+      alert('Erro ao carregar extrato.');
+    });
+</script>
 </body>
 </html>
