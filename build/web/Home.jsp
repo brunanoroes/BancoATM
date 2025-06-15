@@ -69,67 +69,135 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  function getParametro(nome) {
-    const regex = new RegExp('[\\?&]' + nome + '=([^&#]*)');
-    const resultados = regex.exec(window.location.search);
-    return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
-  }
+    document.addEventListener('DOMContentLoaded', function () {
+        carregarContas();
+    });
 
-  function carregarContas() {
-    const usuarioId = getParametro('usuarioId');
-    if (!usuarioId) {
-      console.error('Usuário não está logado.');
-      return;
+    function mostrarErroNaTela(mensagem) {
+        // Seleciona o container onde quer mostrar o erro, ou cria um novo elemento
+        var container = document.querySelector('.container') || document.body;
+
+        // Cria um elemento p com a mensagem
+        var erroElem = document.createElement('p');
+        erroElem.style.color = 'red';
+        erroElem.style.fontWeight = 'bold';
+        erroElem.style.fontSize = '1.2rem';
+        erroElem.textContent = mensagem;
+
+        // Limpa conteúdo anterior (se quiser)
+        container.innerHTML = '';
+        // Adiciona o erro
+        container.appendChild(erroElem);
+    }
+    function getParametro(nome) {
+        const regex = new RegExp('[\\?&]' + nome + '=([^&#]*)');
+        const resultados = regex.exec(window.location.search);
+        return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
     }
 
-    let saldoTotal = 0;
-    fetch('Conta?usuarioId=' + usuarioId)
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.querySelector('#contas-table tbody');
-        if (!tbody) return; // se a tabela ainda não estiver carregada
+    function carregarContas() {
+        const usuarioId = getParametro('usuarioId');
+        if (!usuarioId) {
+            mostrarErroNaTela('Você precisa estar logado para acessar esta página.');
+            return;
+        }
 
-        tbody.innerHTML = '';
+        let saldoTotal = 0;
+        fetch('Conta?usuarioId=' + usuarioId)
+            .then(res => res.json())
+            .then(data => {
+            const tbody = document.querySelector('#contas-table tbody');
+            if (!tbody) return;
 
-        data.forEach(conta => {
-          const tr = document.createElement('tr');
+            tbody.innerHTML = '';
 
-          const tdConta = document.createElement('td');
-          tdConta.textContent = conta.conta;
-          tr.appendChild(tdConta);
+            data.forEach(conta => {
+                const tr = document.createElement('tr');
 
-          const tdTipo = document.createElement('td');
-          tdTipo.textContent = conta.tipo;
-          tr.appendChild(tdTipo);
+                const tdConta = document.createElement('td');
+                tdConta.textContent = conta.conta;
+                tr.appendChild(tdConta);
 
-          const tdData = document.createElement('td');
-          tdData.textContent = conta.data;
-          tr.appendChild(tdData);
+                const tdTipo = document.createElement('td');
+                tdTipo.textContent = conta.tipo;
+                tr.appendChild(tdTipo);
 
-          const tdSaldo = document.createElement('td');
-          tdSaldo.textContent = parseFloat(conta.saldo).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-          });
-          tr.appendChild(tdSaldo);
+                const tdData = document.createElement('td');
+                tdData.textContent = conta.data;
+                tr.appendChild(tdData);
 
-          saldoTotal += parseFloat(conta.saldo);
-          tbody.appendChild(tr);
-        });
+                const tdSaldo = document.createElement('td');
+                tdSaldo.textContent = parseFloat(conta.saldo).toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+                });
+                tr.appendChild(tdSaldo);
 
-        document.getElementById('saldo-total').textContent = saldoTotal.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        });
-      })
-      .catch(err => {
-        console.error('Erro ao carregar contas:', err);
-        alert('Erro ao carregar contas.');
-      });
-  }
+                const tdAcoes = document.createElement('td');
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-sm btn-danger';
+                btn.innerHTML = '<i class="bi bi-x-circle"></i> Apagar';
+
+                btn.addEventListener('click', () => {
+                Swal.fire({
+                    title: 'Tem certeza?',
+                    text: 'Você deseja apagar esta conta?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sim, apagar',
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                    fetch('ApagarConta', {
+                        method: 'POST',
+                        headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: 'conta=' + encodeURIComponent(conta.conta)
+                    })
+                    .then(res => res.json())
+                    .then(resultado => {
+                        Swal.fire({
+                        icon: resultado.status === 'sucesso' ? 'success' : 'error',
+                        title: resultado.status === 'sucesso' ? 'Sucesso!' : 'Erro!',
+                        text: resultado.mensagem
+                        }).then(() => {
+                        if (resultado.status === 'sucesso') {
+                            carregarContas(); // recarrega a lista sem dar reload na página
+                        }
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire('Erro', 'Erro ao apagar conta.', 'error');
+                    });
+                    }
+                });
+                });
+
+                tdAcoes.appendChild(btn);
+                tr.appendChild(tdAcoes);
+
+                saldoTotal += parseFloat(conta.saldo);
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('saldo-total').textContent = saldoTotal.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+            })
+            .catch(err => {
+            console.error('Erro ao carregar contas:', err);
+            alert('Erro ao carregar contas.');
+            });
+    }
+
 </script>
 
