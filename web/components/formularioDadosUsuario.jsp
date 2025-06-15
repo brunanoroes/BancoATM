@@ -56,9 +56,9 @@
 <body>
 <div class="container mt-5">
     <div class="form-card">
-        <h2>Editar Usuário / Cadastrar Usuário</h2>
+        <h2>Cadastrar Usuário</h2>
 
-        <form action="UsuarioServlet" method="post">
+        <form action="CadastroServlet" method="post">
             <input type="hidden" name="usuarioId">
 
             <div class="mb-3">

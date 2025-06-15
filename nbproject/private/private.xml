@@ -3,9 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/bruna/Projetos/BancoATM/src/java/Models/Conexao.java</file>
-            <file>file:/D:/bruna/Projetos/BancoATM/src/java/Controllers/UsuarioServlet.java</file>
-            <file>file:/D:/bruna/Projetos/BancoATM/web/WEB-INF/glassfish-web.xml</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/web/sql/dbjava.sql</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/web/sql/dadosiniciais.sql</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/src/java/Models/Conexao.java</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/src/java/Models/Conta.java</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/src/java/Models/Movimentacao.java</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/web/components/cadastrocontas.jsp</file>
         </group>
     </open-files>
 </project-private>

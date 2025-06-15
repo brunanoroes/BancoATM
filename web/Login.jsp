@@ -68,7 +68,18 @@
   </style>
 </head>
 <body>
-
+  <% if ("sucesso".equals(request.getParameter("msg"))) { %>
+    <div class="position-fixed top-0 start-50 translate-middle-x z-3 mt-3">
+        <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Usuário cadastrado com sucesso!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+            </div>
+        </div>
+    </div>
+    <% } %>
   <div class="login-card">
     <h2 class="text-center mb-4">Login</h2>
 
