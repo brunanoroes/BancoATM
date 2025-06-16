@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<div class="container mt-4 form-card">
+<div class="container mt-4 form-card" id="CadastroContaDiv">
   <h2>Cadastrar Nova Conta</h2>
-  <form id="formConta" method="POST" action="CadastroConta">
+  <form id="formConta">
     <input type="hidden" name="usuarioId" id="usuarioIdInput">
 
     <div class="mb-3">
@@ -27,6 +27,10 @@
     <button type="submit" class="btn btn-warning">Cadastrar Conta</button>
   </form>
 </div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
   function getParametro(nome) {
     const regex = new RegExp('[\\?&]' + nome + '=([^&#]*)');
@@ -34,24 +38,58 @@
     return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
   }
 
-  function mostrarErroNaTela(mensagem) {
-    const container = document.querySelector('.container') || document.body;
-    container.innerHTML = '';
-    const erroElem = document.createElement('p');
-    erroElem.style.color = 'red';
-    erroElem.style.fontWeight = 'bold';
-    erroElem.style.fontSize = '1.2rem';
-    erroElem.textContent = mensagem;
-    container.appendChild(erroElem);
-  }
-
   document.addEventListener('DOMContentLoaded', () => {
     const usuarioId = getParametro('usuarioId');
     if (!usuarioId) {
-      mostrarErroNaTela('Você precisa estar logado para acessar esta página.');
+      document.getElementById('CadastroContaDiv').style.display = 'none'; // Esconde o formulário
       return;
     }
-
     document.getElementById('usuarioIdInput').value = usuarioId;
+
+    document.getElementById('formConta').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+      
+      try {
+        const dados = new URLSearchParams(new FormData(form));
+
+          const response = await fetch('CadastroConta', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: dados
+          });
+
+        const result = await response.json();
+
+        Swal.fire({
+          icon: result.status === "sucesso" ? "success" : "error",
+          title: result.mensagem
+        });
+
+        if (result.status === "sucesso") {
+          form.reset();
+
+          fetch('/BancoATM/components/contas.jsp')
+            .then(res => res.text())
+            .then(html => {
+              document.getElementById('container-contas').innerHTML = html;
+              carregarContas(); // <-- ⚠️ ESSENCIAL
+            })
+            .catch(erro => {
+              console.error('Erro ao atualizar lista de contas:', erro);
+            });
+
+        }
+
+
+      } catch (error) {
+        console.error("Erro ao enviar requisição:", error);
+        Swal.fire("Erro", "Falha na comunicação com o servidor.", "error");
+      }
+    });
   });
 </script>

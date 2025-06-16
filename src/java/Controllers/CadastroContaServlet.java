@@ -16,7 +16,7 @@ public class CadastroContaServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/html;charset=UTF-8");
+        response.setContentType("application/json;charset=UTF-8");
         PrintWriter out = response.getWriter();
 
         String usuarioId = request.getParameter("usuarioId");
@@ -24,13 +24,9 @@ public class CadastroContaServlet extends HttpServlet {
         String tipo = request.getParameter("tipo");
         String saldoStr = request.getParameter("saldo");
 
-        System.out.println("Recebido numero: " + numero);
-        System.out.println("Recebido tipo: " + tipo);
-        System.out.println("Recebido saldo: " + saldoStr);
-
         if (usuarioId == null || numero == null || tipo == null || saldoStr == null ||
-            usuarioId.trim().isEmpty() || numero.trim().isEmpty() || tipo.trim().isEmpty() || saldoStr.trim().isEmpty()) {
-            out.println("<p style='color:red;'>Campos obrigatórios estão vazios!</p>");
+            usuarioId.trim().isEmpty() || numero.trim().isEmpty() || tipo.trim().isEmpty()) {
+            out.print("{\"status\":\"erro\", \"mensagem\":\"Campos obrigatórios estão vazios.\"}");
             return;
         }
 
@@ -39,7 +35,6 @@ public class CadastroContaServlet extends HttpServlet {
 
             Conexao conexaoBD = new Conexao();
             try (Connection conn = conexaoBD.getConexao()) {
-                System.out.println("Conexão com o banco estabelecida.");
                 conn.setAutoCommit(true);
 
                 String sql = "INSERT INTO CONTA (USUARIO_ID, NUMERO_CONTA, TIPO_CONTA, SALDO) VALUES (?, ?, ?, ?)";
@@ -51,9 +46,9 @@ public class CadastroContaServlet extends HttpServlet {
 
                     int linhasAfetadas = stmt.executeUpdate();
                     if (linhasAfetadas > 0) {
-                        out.println("<p style='color:green;'>Conta cadastrada com sucesso!</p>");
+                        out.print("{\"status\":\"sucesso\", \"mensagem\":\"Conta cadastrada com sucesso!\"}");
                     } else {
-                        out.println("<p style='color:red;'>Nenhuma linha inserida no banco!</p>");
+                        out.print("{\"status\":\"erro\", \"mensagem\":\"Nenhuma linha inserida.\"}");
                     }
                 }
             } finally {
@@ -61,11 +56,12 @@ public class CadastroContaServlet extends HttpServlet {
             }
 
         } catch (NumberFormatException e) {
-            out.println("<p style='color:red;'>Saldo inválido! Digite um número válido.</p>");
+            out.print("{\"status\":\"erro\", \"mensagem\":\"Saldo inválido! Digite um número válido.\"}");
+        } catch (SQLIntegrityConstraintViolationException e) {
+            out.print("{\"status\":\"erro\", \"mensagem\":\"Número de conta já existe. Escolha outro.\"}");
         } catch (Exception e) {
-            System.out.println("Erro ao inserir no banco:");
             e.printStackTrace();
-            out.println("<p style='color:red;'>Erro ao cadastrar conta: " + e.getMessage() + "</p>");
+            out.print("{\"status\":\"erro\", \"mensagem\":\"Erro ao cadastrar conta: " + e.getMessage().replace("\"", "\\\"") + "\"}");
         }
     }
 }

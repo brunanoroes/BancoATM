@@ -1,35 +1,90 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>Minha Página com Bootstrap</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Bootstrap CSS (dentro do <head>) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-    <body style="background-color: #cfe2ff" class="gradientBackground">
-         <section class="vh-100 gradient-custom">
-            <div class="container h-100">
-                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
-                                                 data-bs-parent="#accordionExample">
-                                                <div class="accordion-body">
-                                                    <p> Seja Bem-Vindo!
-                                                        Trabalho de Dev Web
-                                                        Grupo: 
-                                                    </p>
-                                                    <a href="Login.jsp">Clique Aqui Para ir para o nosso Projeto</a>
-                                                </div>
-                                            </div>
-            </div>
-         </section>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-                crossorigin="anonymous">
-
-        </script>
+    <meta charset="UTF-8" />
+    <title>Trabalho de Desenvolvimento Web</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-        
-        
-    </body>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .content-card {
+            background-color: #212529;
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 80px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-yellow {
+            background-color: #ffc107;
+            color: #212529;
+            font-weight: bold;
+            border: none;
+        }
+
+        .btn-yellow:hover {
+            background-color: #e0a800;
+        }
+
+        h1, h5 {
+            color: #ffc107;
+        }
+
+        p, li {
+            color: #dee2e6;
+        }
+
+        ul {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container content-card text-center">
+        <h1>Bem-vindo ao Trabalho de Desenvolvimento Web</h1>
+        <p class="mt-3">
+            Este é um projeto desenvolvido para a disciplina de Desenvolvimento Web, utilizando tecnologias modernas para construção de uma aplicação bancária simples.
+        </p>
+
+        <h5 class="mt-4">Participantes:</h5>
+        <ul class="list-unstyled">
+            <li>Bruna Assis Norões</li>
+            <li>Elvis</li>
+            <li>Rachel</li>
+            <li>Bianca</li>
+            <li>Daniel</li>
+        </ul>
+
+        <h5 class="mt-4">Tecnologias utilizadas:</h5>
+        <ul class="list-unstyled">
+            <li>✅ Java JDK 17</li>
+            <li>✅ Servlets e JSP</li>
+            <li>✅ Servidor GlassFish 7.0.7</li>
+            <li>✅ Banco de dados MySQL</li>
+            <li>✅ Bootstrap 5 para o front-end</li>
+        </ul>
+
+        <h5 class="mt-4">Como configurar:</h5>
+        <ul class="list-unstyled">
+            <li>🔧 Crie um banco de dados no MySQL</li>
+            <li>📂 Importe o arquivo `.sql` disponível no projeto para gerar as tabelas</li>
+            <li>🔌 Ajuste as configurações de conexão no código (usuário, senha, URL)</li>
+            <li>🚀 Rode o projeto no GlassFish com suporte a Servlets</li>
+        </ul>
+
+        <div class="mt-4">
+            <a href="Login.jsp" class="btn btn-yellow btn-lg">Acessar o Projeto</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

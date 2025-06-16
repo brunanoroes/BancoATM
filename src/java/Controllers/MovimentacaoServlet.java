@@ -26,6 +26,21 @@ public class MovimentacaoServlet extends HttpServlet {
         }
 
         int usuarioId;
+
+        String limiteStr = request.getParameter("limite");
+        Integer limite = null;
+
+        if (limiteStr != null) {
+            try {
+                limite = Integer.parseInt(limiteStr);
+                if (limite <= 0) {
+                    limite = null; // ignora valores inválidos <= 0
+                }
+            } catch (NumberFormatException e) {
+                limite = null; // ignora se não for número válido
+            }
+        }
+
         try {
             usuarioId = Integer.parseInt(usuarioIdStr);
         } catch (NumberFormatException e) {
@@ -36,11 +51,15 @@ public class MovimentacaoServlet extends HttpServlet {
 
         List<Movimentacao> movimentacoes = new ArrayList<>();
 
-        String sql = "SELECT m.DATA_MOVIMENTACAO, m.DESCRICAO, m.TIPO_MOVIMENTACAO, m.VALOR, c.TIPO_CONTA, c.NUMERO_CONTA " +
-                     "FROM MOVIMENTACAO m " +
-                     "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
-                     "WHERE c.USUARIO_ID = ? " +
-                     "ORDER BY m.DATA_MOVIMENTACAO DESC";
+       String sql = "SELECT m.DATA_MOVIMENTACAO, m.DESCRICAO, m.TIPO_MOVIMENTACAO, m.VALOR, c.TIPO_CONTA, c.NUMERO_CONTA " +
+             "FROM MOVIMENTACAO m " +
+             "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
+             "WHERE c.USUARIO_ID = ? " +
+             "ORDER BY m.DATA_MOVIMENTACAO DESC ";
+
+            if (limite != null) {
+                sql += "LIMIT ?";
+            }
 
         Conexao conexao = new Conexao();
         Connection conn = conexao.getConexao();
@@ -48,6 +67,9 @@ public class MovimentacaoServlet extends HttpServlet {
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, usuarioId);
+            if (limite != null) {
+                ps.setInt(2, limite);
+            }
 
             ResultSet rs = ps.executeQuery();
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
