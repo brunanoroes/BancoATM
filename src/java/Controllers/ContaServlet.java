@@ -2,6 +2,7 @@ package Controllers;
 
 import Models.Conta;
 import Models.Conexao;
+import Models.Usuario;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,21 +19,10 @@ public class ContaServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String usuarioIdStr = request.getParameter("usuarioId");
-        if (usuarioIdStr == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().println("Parâmetro usuarioId obrigatório.");
-            return;
-        }
+        
+        Usuario usuario = request.getSession().getAttribute("usuario");
 
-        int usuarioId;
-        try {
-            usuarioId = Integer.parseInt(usuarioIdStr);
-        } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().println("Parâmetro usuarioId inválido.");
-            return;
-        }
+        int usuarioId = usuario.id;
 
         List<Conta> contas = new ArrayList<>();
 

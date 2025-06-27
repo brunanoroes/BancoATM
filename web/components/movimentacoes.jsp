@@ -102,7 +102,12 @@
     // Adiciona o erro
     container.appendChild(erroElem);
     }
-    var usuarioId = getParametro('usuarioId');
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
+    if (usuario == null) {
+        response.sendRedirect("Login.jsp"); // Redireciona caso não esteja logado
+        return;
+    }
+    var usuarioId = usuario.id;
     var limite = getParametro('limite');
     if (!usuarioId) {
     mostrarErroNaTela('Você precisa estar logado para acessar esta página.');

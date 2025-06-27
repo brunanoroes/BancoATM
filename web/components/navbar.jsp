@@ -46,16 +46,16 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="/BancoATM/Transacao.jsp?limite=4&usuarioId=1"><i class="bi bi-cash-stack"></i> Transa&ccedil;&atilde;o</a>
+          <a class="nav-link" href="/BancoATM/Transacao.jsp?limite=4"><i class="bi bi-cash-stack"></i> Transa&ccedil;&atilde;o</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/BancoATM/Investimento.jsp?usuarioId=1"><i class="bi bi-graph-up-arrow"></i> Investimento</a>
+          <a class="nav-link" href="/BancoATM/Investimento.jsp"><i class="bi bi-graph-up-arrow"></i> Investimento</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/BancoATM/Extrato.jsp?usuarioId=1"><i class="bi bi-receipt"></i> Extrato</a>
+          <a class="nav-link" href="/BancoATM/Extrato.jsp"><i class="bi bi-receipt"></i> Extrato</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/BancoATM/Perfil.jsp?usuarioId=1"><i class="bi bi-person-circle"></i> Perfil</a>
+          <a class="nav-link" href="/BancoATM/Perfil.jsp"><i class="bi bi-person-circle"></i> Perfil</a>
         </li>
         <li class="nav-item">
           <a class="nav-link text-danger" href="/BancoATM/Login.jsp"><i class="bi bi-box-arrow-right"></i> Sair</a>

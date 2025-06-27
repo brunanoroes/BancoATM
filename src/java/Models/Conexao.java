@@ -11,8 +11,8 @@ public class Conexao {
                 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver"); //load driver  
-            //conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/banco?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", "root", "nova_senha");
-            conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/banco?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", "root", "Daniel03#");
+            conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/banco?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", "root", "nova_senha");
+            // conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/banco?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", "root", "Daniel03#");
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Nao foi possivel efetuar uma conexao com o BD!");

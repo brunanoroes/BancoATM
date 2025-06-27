@@ -1,12 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="Models.Usuario" %>
-<%
-    Usuario usuario = (Usuario) session.getAttribute("usuario");
-    if (usuario == null) {
-        //response.sendRedirect("Login.jsp"); 
-        return;
-    }
-%>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -109,14 +101,8 @@
     }
 
     function carregarContas() {
-        const usuarioId = getParametro('usuarioId');
-        if (!usuarioId) {
-            mostrarErroNaTela('Você precisa estar logado para acessar esta página.');
-            return;
-        }
-
         let saldoTotal = 0;
-        fetch('Conta?usuarioId=' + usuarioId)
+        fetch('Conta')
             .then(res => res.json())
             .then(data => {
             const tbody = document.querySelector('#contas-table tbody');
