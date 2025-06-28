@@ -41,45 +41,71 @@ public class MovimentacaoServlet extends HttpServlet {
         }
 
         List<Movimentacao> movimentacoes = new ArrayList<>();
+        List<String[]> contasUsuario = new ArrayList<>();
 
-        String sql = "SELECT m.DATA_MOVIMENTACAO, m.DESCRICAO, m.TIPO_MOVIMENTACAO, m.VALOR, c.TIPO_CONTA, c.NUMERO_CONTA " +
-                     "FROM MOVIMENTACAO m " +
-                     "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
-                     "WHERE c.USUARIO_ID = ? " +
-                     "ORDER BY m.DATA_MOVIMENTACAO DESC ";
+        String sqlMovimentacoes = "SELECT " +
+                "m.DATA_MOVIMENTACAO, m.DESCRICAO, m.TIPO_MOVIMENTACAO, m.VALOR, " +
+                "c.NUMERO_CONTA AS CONTA_ORIGEM_NUMERO, c.TIPO_CONTA AS CONTA_ORIGEM_TIPO, " +
+                "cr.NUMERO_CONTA AS CONTA_DESTINO_NUMERO, cr.TIPO_CONTA AS CONTA_DESTINO_TIPO " +
+                "FROM MOVIMENTACAO m " +
+                "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
+                "LEFT JOIN CONTA cr ON m.CONTA_RELACIONADA_ID = cr.ID " +
+                "WHERE c.USUARIO_ID = ? " +
+                "ORDER BY m.DATA_MOVIMENTACAO DESC ";
 
         if (limite != null) {
-            sql += "LIMIT ?";
+            sqlMovimentacoes += "LIMIT ?";
         }
 
-        try (Connection conn = new Conexao().getConexao();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new Conexao().getConexao()) {
 
-            ps.setInt(1, usuarioId);
-            if (limite != null) {
-                ps.setInt(2, limite);
+            // 👉 BUSCA MOVIMENTAÇÕES
+            try (PreparedStatement ps = conn.prepareStatement(sqlMovimentacoes)) {
+                ps.setInt(1, usuarioId);
+                if (limite != null) {
+                    ps.setInt(2, limite);
+                }
+
+                ResultSet rs = ps.executeQuery();
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+                while (rs.next()) {
+                    String data = sdf.format(rs.getTimestamp("DATA_MOVIMENTACAO"));
+                    String descricao = rs.getString("DESCRICAO");
+                    String tipo = rs.getString("TIPO_MOVIMENTACAO");
+                    double valor = rs.getDouble("VALOR");
+
+                    String contaOrigem = rs.getString("CONTA_ORIGEM_NUMERO") + " - " + rs.getString("CONTA_ORIGEM_TIPO");
+                    String contaDestino = rs.getString("CONTA_DESTINO_NUMERO") != null
+                            ? rs.getString("CONTA_DESTINO_NUMERO") + " - " + rs.getString("CONTA_DESTINO_TIPO")
+                            : "-";
+
+                    movimentacoes.add(new Movimentacao(data, descricao, tipo, valor, contaOrigem, contaDestino));
+                }
             }
 
-            ResultSet rs = ps.executeQuery();
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            // 👉 BUSCA CONTAS DO USUÁRIO
+            String sqlContas = "SELECT ID, NUMERO_CONTA, TIPO_CONTA FROM CONTA WHERE USUARIO_ID = ?";
+            try (PreparedStatement psContas = conn.prepareStatement(sqlContas)) {
+                psContas.setInt(1, usuarioId);
+                ResultSet rsContas = psContas.executeQuery();
 
-            while (rs.next()) {
-                String data = sdf.format(rs.getTimestamp("DATA_MOVIMENTACAO"));
-                String descricao = rs.getString("DESCRICAO");
-                String tipo = rs.getString("TIPO_MOVIMENTACAO");
-                double valor = rs.getDouble("VALOR");
-                String conta = rs.getString("NUMERO_CONTA") + " - " + rs.getString("TIPO_CONTA");
-
-                movimentacoes.add(new Movimentacao(data, descricao, tipo, valor, conta));
+                while (rsContas.next()) {
+                    String id = String.valueOf(rsContas.getInt("ID"));
+                    String numero = rsContas.getString("NUMERO_CONTA");
+                    String tipo = rsContas.getString("TIPO_CONTA");
+                    contasUsuario.add(new String[]{id, numero, tipo});
+                }
             }
 
         } catch (Exception e) {
-            throw new ServletException("Erro ao buscar movimentações: " + e.getMessage(), e);
+            throw new ServletException("Erro ao buscar movimentações ou contas: " + e.getMessage(), e);
         }
 
+        // 👉 SETA NO REQUEST
         request.setAttribute("movimentacoes", movimentacoes);
+        request.setAttribute("contasUsuario", contasUsuario);
 
-        // ✅ Nenhuma outra alteração — as mensagens já estão na session
         if (limite == null) {
             request.getRequestDispatcher("Extrato.jsp").forward(request, response);
         } else {
