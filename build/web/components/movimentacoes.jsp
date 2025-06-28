@@ -5,7 +5,7 @@
   <thead>
     <tr>
       <th>Data</th>
-      <th>Descrição</th>
+      <th>Descri&ccedil;&atilde;o</th>
       <th>Tipo</th>
       <th>Valor</th>
       <th>Conta Origem</th>
