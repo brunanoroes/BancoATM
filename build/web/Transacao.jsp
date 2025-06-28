@@ -70,15 +70,3 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<script>
-    function getParametro(nome) {
-        const regex = new RegExp('[\\?&]' + nome + '=([^&#]*)');
-        const resultados = regex.exec(window.location.search);
-        return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
-    }
-
-    if (usuarioId) {
-        const link = document.getElementById('link-ver-mais');
-        link.href = '/BancoATM/Extrato.jsp?usuarioId=' + encodeURIComponent(usuarioId);
-    }
-</script>

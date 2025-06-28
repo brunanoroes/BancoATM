@@ -1,3 +1,6 @@
+<%@ page import="java.util.List" %>
+<%@ page import="Models.Movimentacao" %>
+
 <table id="extrato-table" class="table table-dark table-striped">
   <thead>
     <tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Valor</th><th>Nº Conta</th></tr>

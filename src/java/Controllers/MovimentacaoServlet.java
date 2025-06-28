@@ -20,7 +20,7 @@ public class MovimentacaoServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("Login.jsp");
             return;
         }
 
@@ -79,6 +79,10 @@ public class MovimentacaoServlet extends HttpServlet {
 
         // Passa a lista para o JSP
         request.setAttribute("movimentacoes", movimentacoes);
-        request.getRequestDispatcher("Extrato.jsp").forward(request, response);
+        if (limite == null) {
+            request.getRequestDispatcher("Extrato.jsp").forward(request, response);
+        } else {
+            request.getRequestDispatcher("Transacao.jsp").forward(request, response);
+        }
     }
 }
