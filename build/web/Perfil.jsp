@@ -3,7 +3,7 @@
 <%
     Usuario usuario = (Usuario) session.getAttribute("usuario");
     if (usuario == null) {
-        response.sendRedirect("Login.jsp"); // Redireciona caso não esteja logado
+        response.sendRedirect("Logout"); // Redireciona caso não esteja logado
         return;
     }
 %>
