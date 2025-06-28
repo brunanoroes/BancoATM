@@ -17,7 +17,7 @@
         <h2>Transações</h2>
 
         <!-- Formulário para nova transação -->
-        <form action="TransacaoServlet" method="post" class="row g-3 mb-4">
+        <form action="CadastroMovimentacao" method="post" class="row g-3 mb-4">
             <div class="col-md-4">
                 <label for="tipoTransacao" class="form-label">Tipo de Transação</label>
                 <select class="form-select" name="tipoTransacao" id="tipoTransacao" required>
