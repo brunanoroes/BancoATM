@@ -17,7 +17,6 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Pega a sessão e garante login
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             response.sendRedirect("Login.jsp");
@@ -25,7 +24,6 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
         }
 
         try {
-            // Parâmetros do formulário
             String tipoTransacao = request.getParameter("tipoTransacao");
             int contaOrigem = Integer.parseInt(request.getParameter("contaOrigem"));
             String contaDestinoStr = request.getParameter("contaDestino");
@@ -33,15 +31,14 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
             double valor = Double.parseDouble(request.getParameter("valor"));
             String descricao = request.getParameter("descricao");
 
-            // Validação mínima
             if (valor <= 0 || tipoTransacao == null || tipoTransacao.isEmpty()) {
-                response.sendRedirect("Transacao.jsp?erro=valorInvalido");
+                session.setAttribute("msgErro", "Valor ou tipo de transação inválido!");
+                response.sendRedirect("Movimentacao?limite=4");
                 return;
             }
 
             try (Connection conn = new Conexao().getConexao()) {
 
-                // Para Depósito ou Saque, só 1 registro
                 if (tipoTransacao.equalsIgnoreCase("Deposito")) {
                     String sql = "INSERT INTO MOVIMENTACAO (CONTA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, 'ENTRADA', ?, ?)";
                     try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -62,11 +59,11 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
 
                 } else if (tipoTransacao.equalsIgnoreCase("Transferencia")) {
                     if (contaDestino == null || contaDestino.equals(contaOrigem)) {
-                        response.sendRedirect("Transacao.jsp?erro=contaDestinoInvalida");
+                        session.setAttribute("msgErro", "Conta de destino inválida para transferência.");
+                        response.sendRedirect("Movimentacao?limite=4");
                         return;
                     }
 
-                    // Saída da conta de origem
                     String sqlSaida = "INSERT INTO MOVIMENTACAO (CONTA_ID, CONTA_RELACIONADA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, ?, 'SAIDA', ?, ?)";
                     try (PreparedStatement ps = conn.prepareStatement(sqlSaida)) {
                         ps.setInt(1, contaOrigem);
@@ -76,7 +73,6 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
                         ps.executeUpdate();
                     }
 
-                    // Entrada na conta de destino
                     String sqlEntrada = "INSERT INTO MOVIMENTACAO (CONTA_ID, CONTA_RELACIONADA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, ?, 'ENTRADA', ?, ?)";
                     try (PreparedStatement ps = conn.prepareStatement(sqlEntrada)) {
                         ps.setInt(1, contaDestino);
@@ -87,13 +83,19 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
                     }
                 }
 
-                // Redireciona para ver as movimentações ou uma tela de sucesso
+                // ✅ Sucesso
+                session.setAttribute("msgSucesso", "Transação registrada com sucesso!");
                 response.sendRedirect("Movimentacao?limite=4");
 
             }
 
         } catch (Exception e) {
-            throw new ServletException("Erro ao registrar movimentação: " + e.getMessage(), e);
+            e.printStackTrace();
+            session.setAttribute("msgErro", "Erro ao registrar movimentação: " + e.getMessage());
+            response.sendRedirect("Movimentacao?limite=4");
+            return;
         }
+
+
     }
 }

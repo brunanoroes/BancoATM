@@ -43,17 +43,17 @@ public class MovimentacaoServlet extends HttpServlet {
         List<Movimentacao> movimentacoes = new ArrayList<>();
 
         String sql = "SELECT m.DATA_MOVIMENTACAO, m.DESCRICAO, m.TIPO_MOVIMENTACAO, m.VALOR, c.TIPO_CONTA, c.NUMERO_CONTA " +
-                    "FROM MOVIMENTACAO m " +
-                    "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
-                    "WHERE c.USUARIO_ID = ? " +
-                    "ORDER BY m.DATA_MOVIMENTACAO DESC ";
+                     "FROM MOVIMENTACAO m " +
+                     "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
+                     "WHERE c.USUARIO_ID = ? " +
+                     "ORDER BY m.DATA_MOVIMENTACAO DESC ";
 
         if (limite != null) {
             sql += "LIMIT ?";
         }
 
         try (Connection conn = new Conexao().getConexao();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, usuarioId);
             if (limite != null) {
@@ -61,7 +61,7 @@ public class MovimentacaoServlet extends HttpServlet {
             }
 
             ResultSet rs = ps.executeQuery();
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
             while (rs.next()) {
                 String data = sdf.format(rs.getTimestamp("DATA_MOVIMENTACAO"));
@@ -77,8 +77,9 @@ public class MovimentacaoServlet extends HttpServlet {
             throw new ServletException("Erro ao buscar movimentações: " + e.getMessage(), e);
         }
 
-        // Passa a lista para o JSP
         request.setAttribute("movimentacoes", movimentacoes);
+
+        // ✅ Nenhuma outra alteração — as mensagens já estão na session
         if (limite == null) {
             request.getRequestDispatcher("Extrato.jsp").forward(request, response);
         } else {

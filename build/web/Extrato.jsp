@@ -12,6 +12,22 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+    <%
+    String msgSucesso = (String) session.getAttribute("msgSucesso");
+    String msgErro = (String) session.getAttribute("msgErro");
+    if (msgSucesso != null) {
+    %>
+    <div class="alert alert-success" role="alert"><%= msgSucesso %></div>
+    <%
+        session.removeAttribute("msgSucesso");
+        }
+        if (msgErro != null) {
+    %>
+    <div class="alert alert-danger" role="alert"><%= msgErro %></div>
+    <%
+        session.removeAttribute("msgErro");
+        }
+    %>
   <%@ include file="/components/navbar.jsp" %>
 
   <div class="container mt-4 form-card">

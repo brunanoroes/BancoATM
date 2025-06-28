@@ -11,6 +11,23 @@
 </head>
 <body>
 
+    <%
+    String msgSucesso = (String) session.getAttribute("msgSucesso");
+    String msgErro = (String) session.getAttribute("msgErro");
+    if (msgSucesso != null) {
+    %>
+    <div class="alert alert-success" role="alert"><%= msgSucesso %></div>
+    <%
+        session.removeAttribute("msgSucesso");
+        }
+        if (msgErro != null) {
+    %>
+    <div class="alert alert-danger" role="alert"><%= msgErro %></div>
+    <%
+        session.removeAttribute("msgErro");
+        }
+    %>
+
     <%@ include file="/components/navbar.jsp" %>
 
     <div class="container content-card">
@@ -64,7 +81,7 @@
         <!-- Tabela de transações existentes -->
         <h4 class="form-label mt-4">Últimas Transações</h4>
         <%@ include file="/components/movimentacoes.jsp" %>
-        <a id="link-ver-mais" href="#" class="ver-mais-link">Ver mais</a>
+        <a id="link-ver-mais" href="/BancoATM/Movimentacao" class="ver-mais-link">Ver mais</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
