@@ -20,9 +20,18 @@ public class ContaServlet extends HttpServlet {
             throws ServletException, IOException {
 
         
-        Usuario usuario = request.getSession().getAttribute("usuario");
+        // Pega a sessão SEM criar nova, assim garante que é login existente
+        HttpSession session = request.getSession(false);
 
-        int usuarioId = usuario.id;
+        if (session == null || session.getAttribute("usuario") == null) {
+            // Usuário não logado, redireciona
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        // Recupera o usuário da sessão
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        int usuarioId = usuario.getId();
 
         List<Conta> contas = new ArrayList<>();
 

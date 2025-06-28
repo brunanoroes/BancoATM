@@ -7,74 +7,7 @@
   <title>Transações</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-
-  <style>
-    body {
-        background-color: #f8f9fa;
-    }
-
-    .content-card {
-        background-color: #212529;
-        color: white;
-        border-radius: 12px;
-        padding: 30px;
-        margin-top: 40px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-
-    .form-label {
-        color: #ffc107;
-        font-weight: bold;
-    }
-
-    .form-control, .form-select {
-        background-color: #343a40;
-        color: white;
-        border: 1px solid #495057;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: #ffc107;
-        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
-    }
-
-    .btn-yellow {
-        background-color: #ffc107;
-        color: #212529;
-        font-weight: bold;
-        border: none;
-    }
-
-    .btn-yellow:hover {
-        background-color: #e0a800;
-    }
-
-    table thead th {
-        color: #ffc107;
-    }
-    .ver-mais-link {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #ffc107; /* amarelo banco */
-        color: #212529; /* texto escuro para contraste */
-        font-weight: 600;
-        border-radius: 8px;
-        text-decoration: none;
-        box-shadow: 0 4px 8px rgba(255, 193, 7, 0.4);
-        transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-        margin-top: 20px;
-    }
-
-    .ver-mais-link:hover,
-    .ver-mais-link:focus {
-        background-color: #e0a800; /* amarelo mais escuro */
-        color: #fff;
-        box-shadow: 0 6px 12px rgba(224, 168, 0, 0.6);
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-  </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 

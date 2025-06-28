@@ -6,52 +6,7 @@
   <title>Investimentos</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-
-  <style>
-    body {
-        background-color: #f8f9fa;
-    }
-
-    .content-card {
-        background-color: #212529;
-        color: white;
-        border-radius: 12px;
-        padding: 30px;
-        margin-top: 40px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-
-    .form-label {
-        color: #ffc107;
-        font-weight: bold;
-    }
-
-    .form-control, .form-select {
-        background-color: #343a40;
-        color: white;
-        border: 1px solid #495057;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: #ffc107;
-        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
-    }
-
-    .btn-yellow {
-        background-color: #ffc107;
-        color: #212529;
-        font-weight: bold;
-        border: none;
-    }
-
-    .btn-yellow:hover {
-        background-color: #e0a800;
-    }
-
-    table thead th {
-        color: #ffc107;
-    }
-  </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 

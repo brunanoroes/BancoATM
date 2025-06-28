@@ -6,53 +6,7 @@
   <title>Página Inicial</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-
-  <style>
-    body {
-        background-color: #f8f9fa;
-    }
-
-    .form-card {
-        background-color: #212529; /* bg-dark */
-        color: white;
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
-        padding: 30px;
-    }
-
-    .form-label {
-        font-weight: bold;
-        color: #ffc107; /* Amarelo estilo banco */
-    }
-
-    .form-control, .form-select {
-        background-color: #343a40;
-        color: white;
-        border: 1px solid #495057;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: #ffc107;
-        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
-    }
-
-    .btn-save {
-        background-color: #ffc107;
-        color: #212529;
-        font-weight: bold;
-        border: none;
-    }
-
-    .btn-save:hover {
-        background-color: #e0a800;
-    }
-
-    h2 {
-        color: #ffffff;
-        margin-bottom: 20px;
-    }
-  </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -62,10 +16,55 @@
         <h2>Bem-vindo!</h2>
 
         <div id="container-contas">
-            <%@ include file="/components/contas.jsp" %>
+            <div class="container mt-4 form-card">
+                <div>
+                <h4 class="form-label">Saldo Total:</h4>
+                <p id="saldo-total" style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">
+                    <!-- Saldo será preenchido via JS -->
+                </p>
+                </div>
+                <div>
+                <h4 class="form-label mt-4">Contas</h4>
+                <table id="contas-table" class="table table-dark table-striped">
+                    <thead>
+                    <tr><th>Conta</th><th>Tipo</th><th>Data de Abertura</th><th>Saldo</th></tr>
+                    </thead>
+                    <tbody>
+                    <!-- dados virão aqui via JS -->
+                    </tbody>
+                </table>
+                </div>
+            </div>
         </div>
 
-       <%@ include file="/components/cadastrocontas.jsp" %>
+       <div class="container mt-4 form-card" id="CadastroContaDiv">
+        <h2>Cadastrar Nova Conta</h2>
+        <form id="formConta">
+            <input type="hidden" name="usuarioId" id="usuarioIdInput">
+
+            <div class="mb-3">
+            <label for="numeroConta" class="form-label">Número da Conta</label>
+            <input type="text" class="form-control" id="numeroConta" name="numero" required maxlength="20">
+            </div>
+
+            <div class="mb-3">
+            <label for="tipoConta" class="form-label">Tipo de Conta</label>
+            <select class="form-select" id="tipoConta" name="tipo" required>
+                <option value="">Selecione</option>
+                <option value="CORRENTE">Corrente</option>
+                <option value="POUPANCA">Poupança</option>
+                <option value="DIGITAL">Digital</option>
+            </select>
+            </div>
+
+            <div class="mb-3">
+            <label for="saldo" class="form-label">Saldo Inicial</label>
+            <input type="number" class="form-control" id="saldo" name="saldo" step="0.01" min="0" placeholder="0,00">
+            </div>
+
+            <button type="submit" class="btn btn-warning">Cadastrar Conta</button>
+        </form>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

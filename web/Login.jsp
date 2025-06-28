@@ -6,66 +6,7 @@
   <title>Login</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-
-  <style>
-    body {
-        background-color: #f8f9fa;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-    }
-
-    .login-card {
-        background-color: #212529;
-        color: white;
-        border-radius: 12px;
-        padding: 40px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        width: 100%;
-        max-width: 400px;
-    }
-
-    .form-label {
-        color: #ffc107;
-        font-weight: bold;
-    }
-
-    .form-control {
-        background-color: #343a40;
-        color: white;
-        border: 1px solid #495057;
-    }
-
-    .form-control:focus {
-        border-color: #ffc107;
-        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
-    }
-
-    .btn-login {
-        background-color: #ffc107;
-        color: #212529;
-        font-weight: bold;
-        border: none;
-    }
-
-    .btn-login:hover {
-        background-color: #e0a800;
-    }
-
-    .register-link {
-        color: #ffc107;
-        text-decoration: none;
-    }
-
-    .register-link:hover {
-        text-decoration: underline;
-    }
-
-    .text-center {
-        text-align: center;
-    }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <% if ("sucesso".equals(request.getParameter("msg"))) { %>
