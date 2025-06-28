@@ -48,20 +48,30 @@
 
     <h2>Minhas Contas</h2>
 
-    <table id="extrato-table" class="table">
+    <%
+        double saldoTotal = 0;
+        for (Conta c : contas) {
+            saldoTotal += c.getSaldo();
+        }
+    %>
+
+    <div class="text-end mb-3">
+        <h5>Saldo Total: <strong>R$ <%= String.format("%.2f", saldoTotal).replace('.', ',') %></strong></h5>
+    </div>
+
+    <table id="extrato-table" class="table table-dark table-striped">
         <thead>
             <tr>
                 <th>Conta</th>
                 <th>Tipo</th>
                 <th>Data de Abertura</th>
                 <th>Saldo</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
             <%
-                double saldoTotal = 0;
                 for (Conta c : contas) {
-                    saldoTotal += c.getSaldo();
                     String saldoClass = c.getSaldo() >= 0 ? "valor-positivo" : "valor-negativo";
                     String saldoFormatado = String.format("%.2f", c.getSaldo()).replace('.', ',');
             %>
@@ -82,36 +92,29 @@
                     <!-- Modal -->
                     <div class="modal fade" id="confirmModal<%= c.getConta() %>" tabindex="-1" aria-labelledby="confirmModalLabel<%= c.getConta() %>" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                            <h5 class="modal-title" id="confirmModalLabel<%= c.getConta() %>">Confirmar Exclusão</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmModalLabel<%= c.getConta() %>">Confirmar Exclusão</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Tem certeza de que deseja apagar a conta <strong><%= c.getConta() %></strong>?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <form method="post" action="ApagarConta" style="display:inline;">
+                                        <input type="hidden" name="conta" value="<%= c.getConta() %>" />
+                                        <button type="submit" class="btn btn-danger">Sim, Apagar</button>
+                                    </form>
+                                </div>
                             </div>
-                            <div class="modal-body">
-                            Tem certeza de que deseja apagar a conta <strong><%= c.getConta() %></strong>?
-                            </div>
-                            <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <form method="post" action="ApagarConta" style="display:inline;">
-                                <input type="hidden" name="conta" value="<%= c.getConta() %>" />
-                                <button type="submit" class="btn btn-danger">Sim, Apagar</button>
-                            </form>
-                            </div>
-                        </div>
                         </div>
                     </div>
                 </td>
             </tr>
             <% } %>
         </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="3" style="text-align: right;">Saldo Total:</th>
-                <th>R$ <%= String.format("%.2f", saldoTotal).replace('.', ',') %></th>
-            </tr>
-        </tfoot>
     </table>
-
 
     <hr>
 
@@ -135,7 +138,7 @@
             <label for="saldo" class="form-label">Saldo Inicial</label>
             <input type="number" id="saldo" name="saldo" min="0" step="0.01" class="form-control">
         </div>
-        <button type="submit" class="btn btn-yellow">Cadastrar Conta</button>
+        <button type="submit" class="btn btn-warning">Cadastrar Conta</button>
     </form>
 
 </div>
