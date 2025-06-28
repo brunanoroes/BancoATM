@@ -20,6 +20,7 @@
     <meta charset="UTF-8">
     <title>Minhas Contas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -70,12 +71,35 @@
                 <td><%= c.getData() %></td>
                 <td class="<%= saldoClass %>">R$ <%= saldoFormatado %></td>
                 <td>
-                    <form method="post" action="ApagarConta" style="display:inline;">
-                    <input type="hidden" name="conta" value="<%= c.getConta() %>" />
-                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Deseja realmente apagar a conta <%= c.getConta() %>?');">
+                    <!-- Botão para abrir o modal -->
+                    <button type="button" 
+                            class="btn btn-danger btn-sm" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#confirmModal<%= c.getConta() %>">
                         Apagar
                     </button>
-                    </form>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="confirmModal<%= c.getConta() %>" tabindex="-1" aria-labelledby="confirmModalLabel<%= c.getConta() %>" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="confirmModalLabel<%= c.getConta() %>">Confirmar Exclusão</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                            Tem certeza de que deseja apagar a conta <strong><%= c.getConta() %></strong>?
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <form method="post" action="ApagarConta" style="display:inline;">
+                                <input type="hidden" name="conta" value="<%= c.getConta() %>" />
+                                <button type="submit" class="btn btn-danger">Sim, Apagar</button>
+                            </form>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
                 </td>
             </tr>
             <% } %>

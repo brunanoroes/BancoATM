@@ -16,13 +16,13 @@ public class ApagarContaServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("application/json;charset=UTF-8");
-        PrintWriter out = response.getWriter();
+        HttpSession session = request.getSession();
 
         String contaNumero = request.getParameter("conta");
 
         if (contaNumero == null || contaNumero.trim().isEmpty()) {
-            out.print("{\"status\":\"erro\", \"mensagem\":\"Número da conta não fornecido.\"}");
+            session.setAttribute("msgErro", "Número da conta não fornecido.");
+            response.sendRedirect("Conta");
             return;
         }
 
@@ -37,13 +37,15 @@ public class ApagarContaServlet extends HttpServlet {
                 ResultSet rs = verificaStmt.executeQuery();
 
                 if (!rs.next()) {
-                    out.print("{\"status\":\"erro\", \"mensagem\":\"Conta não encontrada.\"}");
+                    session.setAttribute("msgErro", "Conta não encontrada.");
+                    response.sendRedirect("Conta");
                     return;
                 }
 
                 double saldo = rs.getDouble("SALDO");
                 if (saldo > 0) {
-                    out.print("{\"status\":\"erro\", \"mensagem\":\"Não é possível apagar uma conta com saldo maior que zero.\"}");
+                    session.setAttribute("msgErro", "Não é possível apagar uma conta com saldo maior que zero.");
+                    response.sendRedirect("Conta");
                     return;
                 }
             }
@@ -55,17 +57,20 @@ public class ApagarContaServlet extends HttpServlet {
                 int linhasAfetadas = deleteStmt.executeUpdate();
 
                 if (linhasAfetadas > 0) {
-                    out.print("{\"status\":\"sucesso\", \"mensagem\":\"Conta apagada com sucesso!\"}");
+                    session.setAttribute("msgSucesso", "Conta apagada com sucesso!");
                 } else {
-                    out.print("{\"status\":\"erro\", \"mensagem\":\"Erro ao apagar. Conta não encontrada.\"}");
+                    session.setAttribute("msgErro", "Erro ao apagar. Conta não encontrada.");
                 }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            out.print("{\"status\":\"erro\", \"mensagem\":\"Erro ao apagar conta: " + e.getMessage().replace("\"", "\\\"") + "\"}");
+            session.setAttribute("msgErro", "Erro ao apagar conta: " + e.getMessage());
         } finally {
             conexaoBD.closeConexao();
         }
+
+        response.sendRedirect("Conta");
     }
 }
+
