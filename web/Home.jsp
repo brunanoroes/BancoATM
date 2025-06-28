@@ -26,6 +26,23 @@
 
 <%@ include file="/components/navbar.jsp" %>
 
+<%
+    String msgSucesso = (String) session.getAttribute("msgSucesso");
+    String msgErro = (String) session.getAttribute("msgErro");
+    if (msgSucesso != null) {
+%>
+<div class="alert alert-success" role="alert"><%= msgSucesso %></div>
+<%
+    session.removeAttribute("msgSucesso");
+    }
+    if (msgErro != null) {
+%>
+<div class="alert alert-danger" role="alert"><%= msgErro %></div>
+<%
+    session.removeAttribute("msgErro");
+    }
+%>
+
 <div class="container mt-4 form-card">
 
     <h2>Minhas Contas</h2>
@@ -77,7 +94,6 @@
     <h2>Cadastrar Nova Conta</h2>
 
     <form method="post" action="CadastroConta" class="form-card">
-        <input type="hidden" name="usuarioId" value="<%= usuario.getId() %>">
         <div class="mb-3">
             <label for="numeroConta" class="form-label">Número da Conta</label>
             <input type="text" id="numeroConta" name="numero" maxlength="20" required class="form-control">

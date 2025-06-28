@@ -24,7 +24,7 @@
           <a class="nav-link" href="/BancoATM/Perfil.jsp"><i class="bi bi-person-circle"></i> Perfil</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-danger" href="/BancoATM/Login.jsp"><i class="bi bi-box-arrow-right"></i> Sair</a>
+          <a class="nav-link text-danger" href="/BancoATM/Logout"><i class="bi bi-box-arrow-right"></i> Sair</a>
         </li>
       </ul>
     </div>
