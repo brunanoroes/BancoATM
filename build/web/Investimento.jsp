@@ -84,6 +84,12 @@
                     <td>10/06/2026</td>
                     <td>Conta Poupança</td>
                     <td>
+                        <form action="RetirarInvestimentoServlet" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="101" />
+                            <button type="submit" class="btn btn-sm btn-warning">
+                                 Retirar
+                            </button>
+                        </form>
                         <form action="CancelarInvestimentoServlet" method="post" class="d-inline">
                             <input type="hidden" name="id" value="101" />
                             <button type="submit" class="btn btn-sm btn-danger">
