@@ -18,7 +18,7 @@
           <a class="nav-link" href="/BancoATM/Investimento.jsp"><i class="bi bi-graph-up-arrow"></i> Investimento</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/BancoATM/Extrato.jsp"><i class="bi bi-receipt"></i> Extrato</a>
+          <a class="nav-link" href="/BancoATM/Movimentacao"><i class="bi bi-receipt"></i> Extrato</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/BancoATM/Perfil.jsp"><i class="bi bi-person-circle"></i> Perfil</a>

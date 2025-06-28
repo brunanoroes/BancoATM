@@ -18,105 +18,67 @@ public class MovimentacaoServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Pega a sessão SEM criar nova, garante que é login existente
         HttpSession session = request.getSession(false);
-
         if (session == null || session.getAttribute("usuario") == null) {
-            // Usuário não logado, redireciona para login
             response.sendRedirect("login.jsp");
             return;
         }
 
-        // Recupera o usuário da sessão
         Models.Usuario usuario = (Models.Usuario) session.getAttribute("usuario");
         int usuarioId = usuario.getId();
 
-        // Opção de limite (limite pode continuar vindo do parâmetro)
         String limiteStr = request.getParameter("limite");
         Integer limite = null;
-
         if (limiteStr != null) {
             try {
                 limite = Integer.parseInt(limiteStr);
                 if (limite <= 0) {
-                    limite = null; // ignora valores inválidos <= 0
+                    limite = null;
                 }
             } catch (NumberFormatException e) {
-                limite = null; // ignora se não for número válido
+                limite = null;
             }
         }
 
         List<Movimentacao> movimentacoes = new ArrayList<>();
 
         String sql = "SELECT m.DATA_MOVIMENTACAO, m.DESCRICAO, m.TIPO_MOVIMENTACAO, m.VALOR, c.TIPO_CONTA, c.NUMERO_CONTA " +
-                     "FROM MOVIMENTACAO m " +
-                     "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
-                     "WHERE c.USUARIO_ID = ? " +
-                     "ORDER BY m.DATA_MOVIMENTACAO DESC ";
+                    "FROM MOVIMENTACAO m " +
+                    "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
+                    "WHERE c.USUARIO_ID = ? " +
+                    "ORDER BY m.DATA_MOVIMENTACAO DESC ";
 
         if (limite != null) {
             sql += "LIMIT ?";
         }
 
-        Conexao conexao = new Conexao();
-        Connection conn = conexao.getConexao();
+        try (Connection conn = new Conexao().getConexao();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, usuarioId);
             if (limite != null) {
                 ps.setInt(2, limite);
             }
 
             ResultSet rs = ps.executeQuery();
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
 
             while (rs.next()) {
-                String dataStr = sdf.format(rs.getTimestamp("DATA_MOVIMENTACAO"));
+                String data = sdf.format(rs.getTimestamp("DATA_MOVIMENTACAO"));
                 String descricao = rs.getString("DESCRICAO");
                 String tipo = rs.getString("TIPO_MOVIMENTACAO");
                 double valor = rs.getDouble("VALOR");
                 String conta = rs.getString("NUMERO_CONTA") + " - " + rs.getString("TIPO_CONTA");
 
-                movimentacoes.add(new Movimentacao(dataStr, descricao, tipo, valor, conta));
+                movimentacoes.add(new Movimentacao(data, descricao, tipo, valor, conta));
             }
 
-            rs.close();
-            ps.close();
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new ServletException("Erro ao buscar movimentações: " + e.getMessage(), e);
-        } finally {
-            conexao.closeConexao();
         }
 
-        // Retorna JSON manualmente:
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        StringBuilder json = new StringBuilder("[");
-        for (int i = 0; i < movimentacoes.size(); i++) {
-            Movimentacao m = movimentacoes.get(i);
-            json.append("{")
-                .append("\"data\":\"").append(escapeJson(m.getData())).append("\",")
-                .append("\"descricao\":\"").append(escapeJson(m.getDescricao())).append("\",")
-                .append("\"tipo\":\"").append(escapeJson(m.getTipo())).append("\",")
-                .append("\"valor\":").append(m.getValor()).append(",")
-                .append("\"conta\":\"").append(escapeJson(m.getConta())).append("\"")
-                .append("}");
-            if (i < movimentacoes.size() - 1) json.append(",");
-        }
-        json.append("]");
-
-        response.getWriter().write(json.toString());
-    }
-
-    // Função simples para escapar aspas e barras em JSON
-    private String escapeJson(String str) {
-        if (str == null) return "";
-        return str.replace("\\", "\\\\")
-                  .replace("\"", "\\\"")
-                  .replace("\n", "\\n")
-                  .replace("\r", "\\r");
+        // Passa a lista para o JSP
+        request.setAttribute("movimentacoes", movimentacoes);
+        request.getRequestDispatcher("Extrato.jsp").forward(request, response);
     }
 }
