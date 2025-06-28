@@ -30,7 +30,7 @@
     %>
   <%@ include file="/components/navbar.jsp" %>
 
-  <div class="container mt-4 form-card">
+  <div class="container mt-5 form-card">
     <h2>Extrato Financeiro</h2>
     <%@ include file="/components/movimentacoes.jsp" %>
   </div>

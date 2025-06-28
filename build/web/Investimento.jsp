@@ -12,7 +12,7 @@
 
     <%@ include file="/components/navbar.jsp" %>
 
-    <div class="container content-card">
+    <div class="container  mt-5 content-card">
         <h2>Investimentos</h2>
 
         <!-- Formulário para novo investimento -->
