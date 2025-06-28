@@ -1,18 +1,18 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/BancoATM/Home.jsp?usuarioId=1">
+    <a class="navbar-brand" href="/BancoATM/Home.jsp">
       <i class="bi bi-bank"></i> MeuBanco
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarNav" aria-controls="navbarNav"
-            aria-expanded="false" aria-label="Alternar navegação">
+            aria-expanded="false" aria-label="Alternar navegaï¿½ï¿½o">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="/BancoATM/Transacao.jsp?limite=4"><i class="bi bi-cash-stack"></i> Transa&ccedil;&atilde;o</a>
+          <a class="nav-link" href="/BancoATM/Transacao.jsp"><i class="bi bi-cash-stack"></i> Transa&ccedil;&atilde;o</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/BancoATM/Investimento.jsp"><i class="bi bi-graph-up-arrow"></i> Investimento</a>

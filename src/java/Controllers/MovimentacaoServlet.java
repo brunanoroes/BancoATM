@@ -18,15 +18,20 @@ public class MovimentacaoServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String usuarioIdStr = request.getParameter("usuarioId");
-        if (usuarioIdStr == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().println("Parâmetro usuarioId obrigatório.");
+        // Pega a sessão SEM criar nova, garante que é login existente
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("usuario") == null) {
+            // Usuário não logado, redireciona para login
+            response.sendRedirect("login.jsp");
             return;
         }
 
-        int usuarioId;
+        // Recupera o usuário da sessão
+        Models.Usuario usuario = (Models.Usuario) session.getAttribute("usuario");
+        int usuarioId = usuario.getId();
 
+        // Opção de limite (limite pode continuar vindo do parâmetro)
         String limiteStr = request.getParameter("limite");
         Integer limite = null;
 
@@ -41,25 +46,17 @@ public class MovimentacaoServlet extends HttpServlet {
             }
         }
 
-        try {
-            usuarioId = Integer.parseInt(usuarioIdStr);
-        } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().println("Parâmetro usuarioId inválido.");
-            return;
-        }
-
         List<Movimentacao> movimentacoes = new ArrayList<>();
 
-       String sql = "SELECT m.DATA_MOVIMENTACAO, m.DESCRICAO, m.TIPO_MOVIMENTACAO, m.VALOR, c.TIPO_CONTA, c.NUMERO_CONTA " +
-             "FROM MOVIMENTACAO m " +
-             "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
-             "WHERE c.USUARIO_ID = ? " +
-             "ORDER BY m.DATA_MOVIMENTACAO DESC ";
+        String sql = "SELECT m.DATA_MOVIMENTACAO, m.DESCRICAO, m.TIPO_MOVIMENTACAO, m.VALOR, c.TIPO_CONTA, c.NUMERO_CONTA " +
+                     "FROM MOVIMENTACAO m " +
+                     "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
+                     "WHERE c.USUARIO_ID = ? " +
+                     "ORDER BY m.DATA_MOVIMENTACAO DESC ";
 
-            if (limite != null) {
-                sql += "LIMIT ?";
-            }
+        if (limite != null) {
+            sql += "LIMIT ?";
+        }
 
         Conexao conexao = new Conexao();
         Connection conn = conexao.getConexao();
