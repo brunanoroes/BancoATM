@@ -52,6 +52,14 @@
                 <td><%= c.getTipo() %></td>
                 <td><%= c.getData() %></td>
                 <td class="<%= saldoClass %>">R$ <%= saldoFormatado %></td>
+                <td>
+                    <form method="post" action="ApagarConta" style="display:inline;">
+                    <input type="hidden" name="conta" value="<%= c.getConta() %>" />
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Deseja realmente apagar a conta <%= c.getConta() %>?');">
+                        Apagar
+                    </button>
+                    </form>
+                </td>
             </tr>
             <% } %>
         </tbody>
