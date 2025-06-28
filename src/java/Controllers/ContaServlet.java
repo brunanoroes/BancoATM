@@ -10,18 +10,21 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @WebServlet(name = "ContaServlet", urlPatterns = {"/Conta"})
 public class ContaServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
+
         if (session == null || session.getAttribute("usuario") == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("Login.jsp");
             return;
         }
 
@@ -30,8 +33,7 @@ public class ContaServlet extends HttpServlet {
 
         List<Conta> contas = new ArrayList<>();
 
-        String sql = "SELECT c.TIPO_CONTA, c.SALDO, c.NUMERO_CONTA, c.DATA_ABERTURA " +
-                     "FROM CONTA c WHERE c.USUARIO_ID = ?";
+        String sql = "SELECT NUMERO_CONTA, TIPO_CONTA, SALDO, DATA_ABERTURA FROM CONTA WHERE USUARIO_ID = ?";
 
         try (Connection conn = new Conexao().getConexao();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -42,12 +44,12 @@ public class ContaServlet extends HttpServlet {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
             while (rs.next()) {
+                String numero = rs.getString("NUMERO_CONTA");
                 String tipo = rs.getString("TIPO_CONTA");
                 double saldo = rs.getDouble("SALDO");
-                String numeroConta = rs.getString("NUMERO_CONTA");
                 String dataAbertura = sdf.format(rs.getTimestamp("DATA_ABERTURA"));
 
-                contas.add(new Conta(numeroConta, dataAbertura, tipo, saldo));
+                contas.add(new Conta(numero, dataAbertura, tipo, saldo));
             }
 
         } catch (SQLException e) {
@@ -55,6 +57,6 @@ public class ContaServlet extends HttpServlet {
         }
 
         request.setAttribute("contas", contas);
-        request.getRequestDispatcher("contas.jsp").forward(request, response);
+        request.getRequestDispatcher("Home.jsp").forward(request, response);
     }
 }

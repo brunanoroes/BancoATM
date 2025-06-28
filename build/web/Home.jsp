@@ -4,30 +4,31 @@
 <%@ page import="Models.Usuario" %>
 
 <%
-    Usuario usuario = (Usuario) session.getAttribute("usuario");
-    if (usuario == null) {
-        response.sendRedirect("Login.jsp"); // Redireciona caso não esteja logado
+    if (session == null || session.getAttribute("usuario") == null) {
+        response.sendRedirect("Login.jsp");
         return;
     }
+
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
     List<Conta> contas = (List<Conta>) request.getAttribute("contas");
-    if (contas == null) {
-        contas = new java.util.ArrayList<>();
-    }
+    if (contas == null) contas = new java.util.ArrayList<>();
 %>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <title>Contas - Banco</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <title>Minhas Contas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
+<%@ include file="/components/navbar.jsp" %>
+
 <div class="container mt-4 form-card">
 
-    <h2>Lista de Contas</h2>
+    <h2>Minhas Contas</h2>
 
     <table id="extrato-table" class="table">
         <thead>
@@ -43,18 +44,16 @@
                 double saldoTotal = 0;
                 for (Conta c : contas) {
                     saldoTotal += c.getSaldo();
+                    String saldoClass = c.getSaldo() >= 0 ? "valor-positivo" : "valor-negativo";
+                    String saldoFormatado = String.format("%.2f", c.getSaldo()).replace('.', ',');
             %>
-                <tr>
-                    <td><%= c.getConta() %></td>
-                    <td><%= c.getTipo() %></td>
-                    <td><%= c.getData() %></td>
-                    <td class="<%= c.getSaldo() >= 0 ? "valor-positivo" : "valor-negativo" %>">
-                        R$ <%= String.format("%.2f", c.getSaldo()).replace('.', ',') %>
-                    </td>
-                </tr>
-            <%
-                }
-            %>
+            <tr>
+                <td><%= c.getConta() %></td>
+                <td><%= c.getTipo() %></td>
+                <td><%= c.getData() %></td>
+                <td class="<%= saldoClass %>">R$ <%= saldoFormatado %></td>
+            </tr>
+            <% } %>
         </tbody>
         <tfoot>
             <tr>
@@ -64,14 +63,16 @@
         </tfoot>
     </table>
 
-    <hr />
+
+    <hr>
 
     <h2>Cadastrar Nova Conta</h2>
+
     <form method="post" action="CadastroConta" class="form-card">
-        <input type="hidden" name="usuarioId" value="<%= usuario.getId() %>" />
+        <input type="hidden" name="usuarioId" value="<%= usuario.getId() %>">
         <div class="mb-3">
             <label for="numeroConta" class="form-label">Número da Conta</label>
-            <input type="text" id="numeroConta" name="numero" maxlength="20" required class="form-control" />
+            <input type="text" id="numeroConta" name="numero" maxlength="20" required class="form-control">
         </div>
         <div class="mb-3">
             <label for="tipoConta" class="form-label">Tipo de Conta</label>
@@ -84,7 +85,7 @@
         </div>
         <div class="mb-3">
             <label for="saldo" class="form-label">Saldo Inicial</label>
-            <input type="number" id="saldo" name="saldo" min="0" step="0.01" class="form-control" />
+            <input type="number" id="saldo" name="saldo" min="0" step="0.01" class="form-control">
         </div>
         <button type="submit" class="btn btn-yellow">Cadastrar Conta</button>
     </form>
