@@ -18,86 +18,98 @@ public class MovimentacaoServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String usuarioIdStr = request.getParameter("usuarioId");
-        if (usuarioIdStr == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().println("Parâmetro usuarioId obrigatório.");
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("usuario") == null) {
+            response.sendRedirect("Logout");
             return;
         }
 
-        int usuarioId;
-        try {
-            usuarioId = Integer.parseInt(usuarioIdStr);
-        } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().println("Parâmetro usuarioId inválido.");
-            return;
+        Models.Usuario usuario = (Models.Usuario) session.getAttribute("usuario");
+        int usuarioId = usuario.getId();
+
+        String limiteStr = request.getParameter("limite");
+        Integer limite = null;
+        if (limiteStr != null) {
+            try {
+                limite = Integer.parseInt(limiteStr);
+                if (limite <= 0) {
+                    limite = null;
+                }
+            } catch (NumberFormatException e) {
+                limite = null;
+            }
         }
 
         List<Movimentacao> movimentacoes = new ArrayList<>();
+        List<String[]> contasUsuario = new ArrayList<>();
 
-        String sql = "SELECT m.DATA_MOVIMENTACAO, m.DESCRICAO, m.TIPO_MOVIMENTACAO, m.VALOR, c.TIPO_CONTA, c.NUMERO_CONTA " +
-                     "FROM MOVIMENTACAO m " +
-                     "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
-                     "WHERE c.USUARIO_ID = ? " +
-                     "ORDER BY m.DATA_MOVIMENTACAO DESC";
+        String sqlMovimentacoes = "SELECT " +
+                "m.DATA_MOVIMENTACAO, m.DESCRICAO, m.TIPO_MOVIMENTACAO, m.VALOR, " +
+                "c.NUMERO_CONTA AS CONTA_ORIGEM_NUMERO, c.TIPO_CONTA AS CONTA_ORIGEM_TIPO, " +
+                "cr.NUMERO_CONTA AS CONTA_DESTINO_NUMERO, cr.TIPO_CONTA AS CONTA_DESTINO_TIPO " +
+                "FROM MOVIMENTACAO m " +
+                "INNER JOIN CONTA c ON m.CONTA_ID = c.ID " +
+                "LEFT JOIN CONTA cr ON m.CONTA_RELACIONADA_ID = cr.ID " +
+                "WHERE c.USUARIO_ID = ? " +
+                "ORDER BY m.DATA_MOVIMENTACAO DESC ";
 
-        Conexao conexao = new Conexao();
-        Connection conn = conexao.getConexao();
+        if (limite != null) {
+            sqlMovimentacoes += "LIMIT ?";
+        }
 
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, usuarioId);
+        try (Connection conn = new Conexao().getConexao()) {
 
-            ResultSet rs = ps.executeQuery();
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            // 👉 BUSCA MOVIMENTAÇÕES
+            try (PreparedStatement ps = conn.prepareStatement(sqlMovimentacoes)) {
+                ps.setInt(1, usuarioId);
+                if (limite != null) {
+                    ps.setInt(2, limite);
+                }
 
-            while (rs.next()) {
-                String dataStr = sdf.format(rs.getTimestamp("DATA_MOVIMENTACAO"));
-                String descricao = rs.getString("DESCRICAO");
-                String tipo = rs.getString("TIPO_MOVIMENTACAO");
-                double valor = rs.getDouble("VALOR");
-                String conta = rs.getString("NUMERO_CONTA") + " - " + rs.getString("TIPO_CONTA");
+                ResultSet rs = ps.executeQuery();
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-                movimentacoes.add(new Movimentacao(dataStr, descricao, tipo, valor, conta));
+                while (rs.next()) {
+                    String data = sdf.format(rs.getTimestamp("DATA_MOVIMENTACAO"));
+                    String descricao = rs.getString("DESCRICAO");
+                    String tipo = rs.getString("TIPO_MOVIMENTACAO");
+                    double valor = rs.getDouble("VALOR");
+
+                    String contaOrigem = rs.getString("CONTA_ORIGEM_NUMERO") + " - " + rs.getString("CONTA_ORIGEM_TIPO");
+                    String contaDestino = rs.getString("CONTA_DESTINO_NUMERO") != null
+                            ? rs.getString("CONTA_DESTINO_NUMERO") + " - " + rs.getString("CONTA_DESTINO_TIPO")
+                            : "-";
+
+                    movimentacoes.add(new Movimentacao(data, descricao, tipo, valor, contaOrigem, contaDestino));
+                }
             }
 
-            rs.close();
-            ps.close();
+            // 👉 BUSCA CONTAS DO USUÁRIO
+            String sqlContas = "SELECT ID, NUMERO_CONTA, TIPO_CONTA FROM CONTA WHERE USUARIO_ID = ?";
+            try (PreparedStatement psContas = conn.prepareStatement(sqlContas)) {
+                psContas.setInt(1, usuarioId);
+                ResultSet rsContas = psContas.executeQuery();
 
-        } catch (SQLException e) {
-            throw new ServletException("Erro ao buscar movimentações: " + e.getMessage(), e);
-        } finally {
-            conexao.closeConexao();
+                while (rsContas.next()) {
+                    String id = String.valueOf(rsContas.getInt("ID"));
+                    String numero = rsContas.getString("NUMERO_CONTA");
+                    String tipo = rsContas.getString("TIPO_CONTA");
+                    contasUsuario.add(new String[]{id, numero, tipo});
+                }
+            }
+
+        } catch (Exception e) {
+            throw new ServletException("Erro ao buscar movimentações ou contas: " + e.getMessage(), e);
         }
 
-        // Retorna JSON manualmente:
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        // 👉 SETA NO REQUEST
+        request.setAttribute("movimentacoes", movimentacoes);
+        request.setAttribute("contasUsuario", contasUsuario);
 
-        StringBuilder json = new StringBuilder("[");
-        for (int i = 0; i < movimentacoes.size(); i++) {
-            Movimentacao m = movimentacoes.get(i);
-            json.append("{")
-                .append("\"data\":\"").append(escapeJson(m.getData())).append("\",")
-                .append("\"descricao\":\"").append(escapeJson(m.getDescricao())).append("\",")
-                .append("\"tipo\":\"").append(escapeJson(m.getTipo())).append("\",")
-                .append("\"valor\":").append(m.getValor()).append(",")
-                .append("\"conta\":\"").append(escapeJson(m.getConta())).append("\"")
-                .append("}");
-            if (i < movimentacoes.size() - 1) json.append(",");
+        if (limite == null) {
+            request.getRequestDispatcher("Extrato.jsp").forward(request, response);
+        } else {
+            request.getRequestDispatcher("Transacao.jsp").forward(request, response);
         }
-        json.append("]");
-
-        response.getWriter().write(json.toString());
-    }
-
-    // Função simples para escapar aspas e barras em JSON
-    private String escapeJson(String str) {
-        if (str == null) return "";
-        return str.replace("\\", "\\\\")
-                  .replace("\"", "\\\"")
-                  .replace("\n", "\\n")
-                  .replace("\r", "\\r");
     }
 }

@@ -1,10 +1,12 @@
 package Models;
 
 public class Conta {
+    
+    private int id;
     private String conta;
-    private String data;
     private String tipo;
     private double saldo;
+    private String data;
 
     public Conta(String conta, String data, String tipo, Double saldo) {
         this.conta = conta;
@@ -12,10 +14,47 @@ public class Conta {
         this.tipo = tipo;
         this.saldo = saldo;
     }
+    
+    public Conta() {
+    }
 
-    public String getConta() { return conta; }
-    public String getData() { return data; }
-    public String getTipo() { return tipo; }
-    public double getSaldo() { return saldo; }
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getConta() {
+        return conta;
+    }
+
+    public void setConta(String conta) {
+        this.conta = conta;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    public void setSaldo(double saldo) {
+        this.saldo = saldo;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
 }
