@@ -11,10 +11,4 @@ VALUES
   (1, 10000.00, '0001-ADM', 'CORRENTE'),
   (2, 1500.00, '0002-JS', 'DIGITAL');
 
--- Suponha IDs 1 e 2 para as contas acima.
-
-INSERT INTO MOVIMENTACAO (CONTA_ID, CONTA_RELACIONADA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO)
-VALUES
-  (2, NULL, 'ENTRADA', 1000.00, 'Depósito inicial'),
-  (2, NULL, 'SAIDA', 200.00, 'Pagamento de boleto'),
-  (2, NULL, 'ENTRADA', 700.00, 'Transferência recebida');
+=
