@@ -73,7 +73,6 @@ public class LoginServlet extends HttpServlet {
                             session.setAttribute("usuario", usuario);
       
                             response.sendRedirect("Conta");
-
                         } else {
                             out.println("<p style='color:red;'>Credenciais inválidas!</p>");
                         }

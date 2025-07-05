@@ -25,6 +25,8 @@
 
     <%@ include file="/components/navbar.jsp" %>
 
+    \<%@ include file="/components/formularioDadosUsuarioPerfil.jsp" %>
+
     <% if ("sucesso".equals(request.getParameter("msg"))) { %>
     <div class="position-fixed top-0 start-50 translate-middle-x z-3 mt-3">
         <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
@@ -65,7 +67,6 @@
               </form>
           </div>
       </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
