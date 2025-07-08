@@ -11,10 +11,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @WebServlet(name = "CadastroMovimentacaoServlet", urlPatterns = {"/CadastroMovimentacao"})
 public class CadastroMovimentacaoServlet extends HttpServlet {
-
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -33,8 +34,7 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
             int contaOrigemId = Integer.parseInt(request.getParameter("contaOrigem"));
             String contaDestinoStr = request.getParameter("contaDestino");
             String contaDestinoNumero = (contaDestinoStr != null && !contaDestinoStr.isEmpty())
-            ? contaDestinoStr
-            : null;
+            ? contaDestinoStr : null;
             double valor = Double.parseDouble(request.getParameter("valor"));
             String descricao = request.getParameter("descricao");
 
@@ -45,7 +45,7 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
             }
 
             try (Connection conn = new Conexao().getConexao()) {
-
+                conn.setAutoCommit(false);
                 // ✅ Valida se conta de origem pertence ao usuário
                 String sqlCheckOrigem = "SELECT COUNT(*) FROM CONTA WHERE ID = ? AND USUARIO_ID = ?";
                 try (PreparedStatement psCheck = conn.prepareStatement(sqlCheckOrigem)) {
@@ -61,24 +61,28 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
                         }
                     }
                 }
-
+                
+                String subtractValueSQL = "UPDATE CONTA SET SALDO = SALDO - ? WHERE ID = ?";
+                String addValueSQL = "UPDATE CONTA SET SALDO = SALDO + ? WHERE ID = ?";
                 if (tipoTransacao.equalsIgnoreCase("Deposito")) {
-                    String sql = "INSERT INTO MOVIMENTACAO (CONTA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, 'ENTRADA', ?, ?)";
-                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                        ps.setInt(1, contaOrigemId);
-                        ps.setDouble(2, valor);
-                        ps.setString(3, descricao);
+                    // Adiciona valor na conta:
+                    try (PreparedStatement ps = conn.prepareStatement(addValueSQL)) {
+                        ps.setDouble(1, valor); // valor transferido
+                        ps.setInt(2, contaOrigemId);   
                         ps.executeUpdate();
+                        conn.commit();
                     }
+                    insertMovimentacao(conn, contaOrigemId, "ENTRADA", valor, descricao, session);
 
                 } else if (tipoTransacao.equalsIgnoreCase("Saque")) {
-                    String sql = "INSERT INTO MOVIMENTACAO (CONTA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, 'SAIDA', ?, ?)";
-                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                        ps.setInt(1, contaOrigemId);
-                        ps.setDouble(2, valor);
-                        ps.setString(3, descricao);
+                    // Subtrai valor na conta:
+                    try (PreparedStatement ps = conn.prepareStatement(subtractValueSQL)) {
+                        ps.setDouble(1, valor); // valor sacado
+                        ps.setInt(2, contaOrigemId);   
                         ps.executeUpdate();
+                        conn.commit();
                     }
+                    insertMovimentacao(conn, contaOrigemId, "SAIDA", valor, descricao, session);
 
                 } else if (tipoTransacao.equalsIgnoreCase("Transferencia")) {
                     if (contaDestinoNumero == null) {
@@ -102,14 +106,28 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
                         }
                     }
 
-
                     // 👉 Impede transferir para a mesma conta
                     if (contaDestinoId.equals(contaOrigemId)) {
                         session.setAttribute("msgErro", "Conta de destino não pode ser a mesma da origem.");
                         response.sendRedirect("Movimentacao?limite=4");
                         return;
                     }
-
+                            
+                    // Atualiza o saldo das contas origem e destino na tabela "CONTA" do BD: 
+                    // 1. Subtrai valor da conta de origem:
+                    try (PreparedStatement ps = conn.prepareStatement(subtractValueSQL)) {
+                        ps.setDouble(1, valor); 
+                        ps.setInt(2, contaOrigemId);   
+                        ps.executeUpdate();
+                    }
+    
+                    // 2. Adiciona valor na conta de destino:
+                    try (PreparedStatement ps = conn.prepareStatement(addValueSQL)) {
+                        ps.setDouble(1, valor); 
+                        ps.setInt(2, contaDestinoId);   
+                        ps.executeUpdate();
+                    }
+     
                     // SAÍDA na origem
                     String sqlSaida = "INSERT INTO MOVIMENTACAO (CONTA_ID, CONTA_RELACIONADA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, ?, 'SAIDA', ?, ?)";
                     try (PreparedStatement ps = conn.prepareStatement(sqlSaida)) {
@@ -128,17 +146,41 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
                         ps.setDouble(3, valor);
                         ps.setString(4, descricao);
                         ps.executeUpdate();
+                        
                     }
                 }
-
+                conn.commit();
                 session.setAttribute("msgSucesso", "Transação registrada com sucesso!");
                 response.sendRedirect("Movimentacao?limite=4");
+
             }
 
-        } catch (Exception e) {
+        }
+
+        
+        catch (Exception e) {
             e.printStackTrace();
             session.setAttribute("msgErro", "Erro ao registrar movimentação: " + e.getMessage());
             response.sendRedirect("Movimentacao?limite=4");
         }
     }
+   
+                    
+        protected void insertMovimentacao(Connection conn, int contaId, String tipoMovimentacao, double valor, String descricao, HttpSession session) throws SQLException {
+            String sql = "INSERT INTO MOVIMENTACAO (CONTA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, contaId);
+                ps.setString(2, tipoMovimentacao);
+                ps.setDouble(3, valor);
+                ps.setString(4, descricao);
+                ps.executeUpdate();
+                conn.commit();
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+                session.setAttribute("msgErro", "Erro ao registrar movimentação: " + e.getMessage());
+                conn.rollback();
+            }
+        }
+    
 }

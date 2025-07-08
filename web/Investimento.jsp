@@ -1,6 +1,9 @@
 <%@page import="Models.Conta"%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.*, Models.Investimento, java.text.SimpleDateFormat, java.math.BigDecimal" %>
+<%@ page import="java.util.*" %>
+<%@ page import="Models.Investimento" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.math.BigDecimal" %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -19,7 +22,12 @@
 
 <div class="container mt-5 content-card">
     <h2>Investimentos</h2>
-
+    <% String erro = (String) request.getAttribute("erro"); %>
+    <% if (erro != null) { %>
+        <div class="alert alert-danger" role="alert">
+            <%= erro %>
+        </div>
+    <% } %>
     <!-- Formulário para novo investimento -->
     <form action="Investimento?action=insert" method="post" class="row g-3 mb-4">
         <div class="col-md-4">

@@ -72,58 +72,70 @@ public class InvestimentoServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("insert".equals(action)) {
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            int usuarioId = usuario.getId();
+            final BigDecimal TAXA_PADRAO = new BigDecimal("15.00");
+
             try (Connection conn = new Conexao().getConexao()) {
 
-                int contaId = Integer.parseInt(request.getParameter("contaId"));
+                // Validação dos parâmetros de entrada
+                String contaIdParam = request.getParameter("contaId");
                 String tipo = request.getParameter("tipoInvestimento");
-                BigDecimal valor = new BigDecimal(request.getParameter("valorAplicado"));
+                String valorParam = request.getParameter("valorAplicado");
                 String dataVenc = request.getParameter("dataVencimento");
-                
-                BigDecimal taxa = new BigDecimal("15.00");
 
-                // Calcular rendimento proporcional (regra simples: taxa anual / 365 * dias)
+                if (contaIdParam == null || tipo == null || valorParam == null || dataVenc == null) {
+                    redirecionarComErro(request, response, conn, usuarioId, "Parâmetros inválidos.");
+                    return;
+                }
+
+                int contaId = Integer.parseInt(contaIdParam);
+                BigDecimal valor = new BigDecimal(valorParam);
                 LocalDate hoje = LocalDate.now();
-                LocalDate vencimento = LocalDate.parse(request.getParameter("dataVencimento"));
-                long dias = ChronoUnit.DAYS.between(hoje, vencimento);
+                LocalDate vencimento = LocalDate.parse(dataVenc);
 
-                BigDecimal rendimento = valor
-                    .multiply(taxa)
-                    .multiply(new BigDecimal(dias))
-                    .divide(new BigDecimal(100 * 365), 2, RoundingMode.HALF_UP);
+                // Validação da data de vencimento
+                if (vencimento.isBefore(hoje)) {
+                    redirecionarComErro(request, response, conn, usuarioId, "A data de vencimento não pode ser anterior à data atual.");
+                    return;
+                }
 
-                // Usar java.sql.Date corretamente
-                Timestamp dataVencimento = Timestamp.valueOf(dataVenc + " 00:00:00");
-
-                conn.setAutoCommit(false); // Início da transação
-
-                try {
-                    // 1. Verificar saldo
-                    BigDecimal saldoAtual = BigDecimal.ZERO;
-                    String verificaSaldo = "SELECT SALDO FROM CONTA WHERE ID = ?";
-                    try (PreparedStatement psSaldo = conn.prepareStatement(verificaSaldo)) {
-                        psSaldo.setInt(1, contaId);
-                        ResultSet rs = psSaldo.executeQuery();
+                // Verificação de saldo
+                BigDecimal saldoAtual = BigDecimal.ZERO;
+                try (PreparedStatement psSaldo = conn.prepareStatement("SELECT SALDO FROM CONTA WHERE ID = ?")) {
+                    psSaldo.setInt(1, contaId);
+                    try (ResultSet rs = psSaldo.executeQuery()) {
                         if (rs.next()) {
                             saldoAtual = rs.getBigDecimal("SALDO");
                         } else {
                             throw new ServletException("Conta não encontrada.");
                         }
                     }
+                }
 
-                    if (saldoAtual.compareTo(valor) < 0) {
-                        throw new ServletException("Saldo insuficiente para aplicar investimento.");
-                    }
+                if (saldoAtual.compareTo(valor) < 0) {
+                    redirecionarComErro(request, response, conn, usuarioId, "Saldo insuficiente para aplicar investimento.");
+                    return;
+                }
 
-                    // 2. Debitar da conta
-                    String debitarSql = "UPDATE CONTA SET SALDO = SALDO - ? WHERE ID = ?";
-                    try (PreparedStatement psDebito = conn.prepareStatement(debitarSql)) {
+                // Cálculo de rendimento
+                long dias = ChronoUnit.DAYS.between(hoje, vencimento);
+                BigDecimal rendimento = valor.multiply(TAXA_PADRAO).multiply(BigDecimal.valueOf(dias))
+                        .divide(BigDecimal.valueOf(100 * 365), 2, RoundingMode.HALF_UP);
+                Timestamp dataAplicacao = new Timestamp(System.currentTimeMillis());
+                Timestamp dataVencimento = Timestamp.valueOf(dataVenc + " 00:00:00");
+
+                // Transação de débito e inserção
+                conn.setAutoCommit(false);
+                try {
+                    // Debitar valor da conta
+                    try (PreparedStatement psDebito = conn.prepareStatement("UPDATE CONTA SET SALDO = SALDO - ? WHERE ID = ?")) {
                         psDebito.setBigDecimal(1, valor);
                         psDebito.setInt(2, contaId);
                         psDebito.executeUpdate();
                     }
 
-                    Timestamp dataAplicacao = new Timestamp(System.currentTimeMillis()); // data atual
-                    // 3. Inserir investimento
+                    // Inserir investimento
                     String sql = "INSERT INTO INVESTIMENTO (CONTA_ID, TIPO_INVESTIMENTO, VALOR_APLICADO, DATA_APLICACAO, DATA_VENCIMENTO, RENDIMENTO_ESPERADO, TAXA_ANUAL_PERCENTUAL) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     try (PreparedStatement ps = conn.prepareStatement(sql)) {
                         ps.setInt(1, contaId);
@@ -132,11 +144,12 @@ public class InvestimentoServlet extends HttpServlet {
                         ps.setTimestamp(4, dataAplicacao);
                         ps.setTimestamp(5, dataVencimento);
                         ps.setBigDecimal(6, rendimento);
-                        ps.setBigDecimal(7, taxa);
+                        ps.setBigDecimal(7, TAXA_PADRAO);
                         ps.executeUpdate();
                     }
 
-                    conn.commit(); // Tudo certo!
+                    conn.commit();
+                    response.sendRedirect("Investimento?action=list");
 
                 } catch (Exception e) {
                     conn.rollback();
@@ -145,13 +158,23 @@ public class InvestimentoServlet extends HttpServlet {
                     conn.setAutoCommit(true);
                 }
 
-                response.sendRedirect("Investimento?action=list");
-
             } catch (Exception e) {
                 throw new ServletException("Erro ao inserir investimento: " + e.getMessage(), e);
             }
         }
     }
+
+    private void redirecionarComErro(HttpServletRequest request, HttpServletResponse response, Connection conn, int usuarioId, String mensagemErro)
+        throws ServletException, IOException, SQLException {
+
+        request.setAttribute("erro", mensagemErro);
+        List<Conta> contas = listarContasPorUsuario(conn, usuarioId);
+        List<Investimento> investimentos = listarInvestimentosPorUsuario(conn, usuarioId);
+        request.setAttribute("contas", contas);
+        request.setAttribute("investimentos", investimentos);
+        request.getRequestDispatcher("/Investimento.jsp").forward(request, response);
+    }
+
 
     private List<Investimento> listarInvestimentosPorUsuario(Connection conn, int usuarioId) throws SQLException {
         List<Investimento> lista = new ArrayList<>();
