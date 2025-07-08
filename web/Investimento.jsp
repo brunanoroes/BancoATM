@@ -1,9 +1,6 @@
 <%@page import="Models.Conta"%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.*" %>
-<%@ page import="Models.Investimento" %>
-<%@ page import="java.text.SimpleDateFormat" %>
-<%@ page import="java.math.BigDecimal" %>
+<%@ page import="java.util.*, Models.Investimento, java.text.SimpleDateFormat, java.math.BigDecimal" %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
