@@ -1,3 +1,5 @@
+<%@page import="Models.Investimento"%>
+<%@page import="Controllers.InvestimentoServlet"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="Models.Conta" %>
@@ -10,6 +12,7 @@
     }
 
     Usuario usuario = (Usuario) session.getAttribute("usuario");
+    List<Investimento> investimentos = (List<Investimento>) request.getAttribute("investimentos");
     List<Conta> contas = (List<Conta>) request.getAttribute("contas");
     if (contas == null) contas = new java.util.ArrayList<>();
 %>

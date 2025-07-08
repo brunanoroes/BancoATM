@@ -3,6 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/web/sql/dbjava.sql</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/web/sql/dadosiniciais.sql</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/src/java/Models/Conexao.java</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/src/java/Models/Conta.java</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/src/java/Models/Movimentacao.java</file>
+            <file>file:/C:/Users/izuca/Desktop/BancoATM/BancoATM/web/components/cadastrocontas.jsp</file>
+=======
             <file>file:/D:/bruna/Projetos/BancoATM/web/sql/dbjava.sql</file>
             <file>file:/D:/bruna/Projetos/BancoATM/src/java/Controllers/UsuarioServlet.java</file>
             <file>file:/D:/bruna/Projetos/BancoATM/web/css/style.css</file>
@@ -25,6 +33,7 @@
             <file>file:/D:/bruna/Projetos/BancoATM/web/Login.jsp</file>
             <file>file:/D:/bruna/Projetos/BancoATM/src/java/Controllers/LogoutServlet.java</file>
             <file>file:/D:/bruna/Projetos/BancoATM/src/java/Controllers/CadastroContaServlet.java</file>
+>>>>>>> 30f0fb1cc7c45dc465466a5d75ff7a59e056b14c
         </group>
     </open-files>
 </project-private>

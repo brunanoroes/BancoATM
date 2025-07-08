@@ -73,9 +73,10 @@ public class LoginServlet extends HttpServlet {
                             session.setAttribute("usuario", usuario);
       
                             response.sendRedirect("Conta");
-
                         } else {
-                            out.println("<p style='color:red;'>Credenciais inválidas!</p>");
+                            HttpSession session = request.getSession();
+                            session.setAttribute("msgErro", "Credenciais inválidas!");
+                            response.sendRedirect("Login.jsp");
                         }
                     }
                 }
