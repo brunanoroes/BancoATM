@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Controllers;
 
 import Models.Conexao;
+import Models.Usuario; // Certifique-se que esta importação está correta
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,13 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.MessageDigest;
 import java.sql.*;
-                   // ⬅️ Classe que representa o usuário
 
-
-/**
- *
- * @author izuca
- */
 @WebServlet(name = "PerfilServlet", urlPatterns = {"/PerfilServlet"})
 public class PerfilServlet extends HttpServlet {
 
@@ -31,11 +22,19 @@ public class PerfilServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
 
+        // Verifica se há usuário logado na sessão
+        Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+        if (usuario == null) {
+            response.sendRedirect("Logout");
+            return;
+        }
+
         String nome = request.getParameter("nome");
         String email = request.getParameter("email");
         String senha = request.getParameter("senha");
         String idStr = request.getParameter("id");
 
+        // Validação
         if (nome == null || email == null || senha == null || idStr == null ||
             nome.trim().isEmpty() || email.trim().isEmpty() || senha.trim().isEmpty() || idStr.trim().isEmpty()) {
             out.println("<p style='color:red;'>Todos os campos são obrigatórios!</p>");
@@ -59,9 +58,13 @@ public class PerfilServlet extends HttpServlet {
 
                     int linhasAfetadas = stmt.executeUpdate();
                     if (linhasAfetadas > 0) {
-                        
-                        
-                    response.sendRedirect("Perfil.jsp?msg=sucesso");
+                        // Atualiza o objeto da sessão
+                        usuario.setNome(nome);
+                        usuario.setEmail(email);
+                        usuario.setSenha(senhaHash); // Certifique-se que esse método existe
+                        request.getSession().setAttribute("usuario", usuario);
+
+                        response.sendRedirect("Perfil.jsp?msg=sucesso");
                     } else {
                         out.println("<p style='color:red;'>Usuário não encontrado com o ID informado!</p>");
                     }
@@ -77,7 +80,7 @@ public class PerfilServlet extends HttpServlet {
             out.println("<p style='color:red;'>Erro ao atualizar usuário: " + e.getMessage() + "</p>");
         }
     }
-    
+
     private String hashSenha(String senha) throws Exception {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hashBytes = md.digest(senha.getBytes("UTF-8"));
