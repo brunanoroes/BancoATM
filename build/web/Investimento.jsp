@@ -19,7 +19,12 @@
 
 <div class="container mt-5 content-card">
     <h2>Investimentos</h2>
-
+ <% String erro = (String) request.getAttribute("erro"); %>
+    <% if (erro != null) { %>
+        <div class="alert alert-danger" role="alert">
+            <%= erro %>
+        </div>
+    <% } %>
     <!-- Formulário para novo investimento -->
     <form action="Investimento?action=insert" method="post" class="row g-3 mb-4">
         <div class="col-md-4">
