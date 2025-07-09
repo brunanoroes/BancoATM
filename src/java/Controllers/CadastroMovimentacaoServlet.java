@@ -15,7 +15,7 @@ import java.sql.SQLException;
 
 @WebServlet(name = "CadastroMovimentacaoServlet", urlPatterns = {"/CadastroMovimentacao"})
 public class CadastroMovimentacaoServlet extends HttpServlet {
-    
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -29,158 +29,168 @@ public class CadastroMovimentacaoServlet extends HttpServlet {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         int usuarioId = usuario.getId();
 
-        try {
-            String tipoTransacao = request.getParameter("tipoTransacao");
-            int contaOrigemId = Integer.parseInt(request.getParameter("contaOrigem"));
-            String contaDestinoStr = request.getParameter("contaDestino");
-            String contaDestinoNumero = (contaDestinoStr != null && !contaDestinoStr.isEmpty())
-            ? contaDestinoStr : null;
-            double valor = Double.parseDouble(request.getParameter("valor"));
-            String descricao = request.getParameter("descricao");
+        String tipoTransacao = request.getParameter("tipoTransacao");
+        String contaDestinoStr = request.getParameter("contaDestino");
+        int contaOrigemId = Integer.parseInt(request.getParameter("contaOrigem"));
+        double valor = Double.parseDouble(request.getParameter("valor"));
+        String descricao = request.getParameter("descricao");
 
-            if (valor <= 0 || tipoTransacao == null || tipoTransacao.isEmpty()) {
-                session.setAttribute("msgErro", "Valor ou tipo de transação inválido!");
+        if (valor <= 0 || tipoTransacao == null || tipoTransacao.isEmpty()) {
+            session.setAttribute("msgErro", "Valor ou tipo de transação inválido!");
+            response.sendRedirect("Movimentacao?limite=4");
+            return;
+        }
+
+        try (Connection conn = new Conexao().getConexao()) {
+            conn.setAutoCommit(false);
+
+            // ✅ 1) Valida se conta de origem pertence ao usuário logado
+            if (!contaOrigemPertenceAoUsuario(conn, contaOrigemId, usuarioId)) {
+                session.setAttribute("msgErro", "Conta de origem não encontrada ou não pertence a você.");
                 response.sendRedirect("Movimentacao?limite=4");
                 return;
             }
 
-            try (Connection conn = new Conexao().getConexao()) {
-                conn.setAutoCommit(false);
-                // ✅ Valida se conta de origem pertence ao usuário
-                String sqlCheckOrigem = "SELECT COUNT(*) FROM CONTA WHERE ID = ? AND USUARIO_ID = ?";
-                try (PreparedStatement psCheck = conn.prepareStatement(sqlCheckOrigem)) {
-                    psCheck.setInt(1, contaOrigemId);
-                    psCheck.setInt(2, usuarioId);
-                    ResultSet rs = psCheck.executeQuery();
-                    if (rs.next()) {
-                        int count = rs.getInt(1);
-                        if (count == 0) {
-                            session.setAttribute("msgErro", "Conta de origem não encontrada ou não pertence a você.");
-                            response.sendRedirect("Movimentacao?limite=4");
-                            return;
-                        }
-                    }
-                }
-                
-                String subtractValueSQL = "UPDATE CONTA SET SALDO = SALDO - ? WHERE ID = ?";
-                String addValueSQL = "UPDATE CONTA SET SALDO = SALDO + ? WHERE ID = ?";
-                if (tipoTransacao.equalsIgnoreCase("Deposito")) {
-                    // Adiciona valor na conta:
-                    try (PreparedStatement ps = conn.prepareStatement(addValueSQL)) {
-                        ps.setDouble(1, valor); // valor transferido
-                        ps.setInt(2, contaOrigemId);   
-                        ps.executeUpdate();
-                        conn.commit();
-                    }
-                    insertMovimentacao(conn, contaOrigemId, "ENTRADA", valor, descricao, session);
+            // Queries base
+            String subtractSQL = "UPDATE CONTA SET SALDO = SALDO - ? WHERE ID = ?";
+            String addSQL = "UPDATE CONTA SET SALDO = SALDO + ? WHERE ID = ?";
 
-                } else if (tipoTransacao.equalsIgnoreCase("Saque")) {
-                    // Subtrai valor na conta:
-                    try (PreparedStatement ps = conn.prepareStatement(subtractValueSQL)) {
-                        ps.setDouble(1, valor); // valor sacado
-                        ps.setInt(2, contaOrigemId);   
+            switch (tipoTransacao.toUpperCase()) {
+                case "DEPOSITO":
+                    try (PreparedStatement ps = conn.prepareStatement(addSQL)) {
+                        ps.setDouble(1, valor);
+                        ps.setInt(2, contaOrigemId);
                         ps.executeUpdate();
-                        conn.commit();
                     }
-                    insertMovimentacao(conn, contaOrigemId, "SAIDA", valor, descricao, session);
+                    insertMovimentacao(conn, contaOrigemId, "ENTRADA", valor, descricao);
+                    break;
 
-                } else if (tipoTransacao.equalsIgnoreCase("Transferencia")) {
-                    if (contaDestinoNumero == null) {
+                case "SAQUE":
+                    try (PreparedStatement ps = conn.prepareStatement(subtractSQL)) {
+                        ps.setDouble(1, valor);
+                        ps.setInt(2, contaOrigemId);
+                        ps.executeUpdate();
+                    }
+                    insertMovimentacao(conn, contaOrigemId, "SAIDA", valor, descricao);
+                    break;
+
+                case "TRANSFERENCIA":
+                    if (contaDestinoStr == null || contaDestinoStr.isEmpty()) {
                         session.setAttribute("msgErro", "Conta de destino não informada para transferência.");
                         response.sendRedirect("Movimentacao?limite=4");
                         return;
                     }
 
-                    // 👉 Verifica se a conta de destino existe (número)
-                    String sqlCheckDestino = "SELECT ID FROM CONTA WHERE NUMERO_CONTA = ?";
-                    Integer contaDestinoId = null;
-                    try (PreparedStatement psCheckDest = conn.prepareStatement(sqlCheckDestino)) {
-                        psCheckDest.setString(1, contaDestinoNumero);  // usa setString!
-                        ResultSet rsDest = psCheckDest.executeQuery();
-                        if (rsDest.next()) {
-                            contaDestinoId = rsDest.getInt("ID");
-                        } else {
-                            session.setAttribute("msgErro", "Conta de destino não encontrada.");
-                            response.sendRedirect("Movimentacao?limite=4");
-                            return;
-                        }
+                    Integer contaDestinoId = buscarContaDestinoId(conn, contaDestinoStr);
+                    if (contaDestinoId == null) {
+                        session.setAttribute("msgErro", "Conta de destino não encontrada.");
+                        response.sendRedirect("Movimentacao?limite=4");
+                        return;
                     }
 
-                    // 👉 Impede transferir para a mesma conta
                     if (contaDestinoId.equals(contaOrigemId)) {
                         session.setAttribute("msgErro", "Conta de destino não pode ser a mesma da origem.");
                         response.sendRedirect("Movimentacao?limite=4");
                         return;
                     }
-                            
-                    // Atualiza o saldo das contas origem e destino na tabela "CONTA" do BD: 
-                    // 1. Subtrai valor da conta de origem:
-                    try (PreparedStatement ps = conn.prepareStatement(subtractValueSQL)) {
-                        ps.setDouble(1, valor); 
-                        ps.setInt(2, contaOrigemId);   
-                        ps.executeUpdate();
-                    }
-    
-                    // 2. Adiciona valor na conta de destino:
-                    try (PreparedStatement ps = conn.prepareStatement(addValueSQL)) {
-                        ps.setDouble(1, valor); 
-                        ps.setInt(2, contaDestinoId);   
-                        ps.executeUpdate();
-                    }
-     
-                    // SAÍDA na origem
-                    String sqlSaida = "INSERT INTO MOVIMENTACAO (CONTA_ID, CONTA_RELACIONADA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, ?, 'SAIDA', ?, ?)";
-                    try (PreparedStatement ps = conn.prepareStatement(sqlSaida)) {
-                        ps.setInt(1, contaOrigemId);
-                        ps.setInt(2, contaDestinoId);
-                        ps.setDouble(3, valor);
-                        ps.setString(4, descricao);
-                        ps.executeUpdate();
-                    }
 
-                    // ENTRADA na destino
-                    String sqlEntrada = "INSERT INTO MOVIMENTACAO (CONTA_ID, CONTA_RELACIONADA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, ?, 'ENTRADA', ?, ?)";
-                    try (PreparedStatement ps = conn.prepareStatement(sqlEntrada)) {
-                        ps.setInt(1, contaDestinoId);
+                    // Subtrai da origem
+                    try (PreparedStatement ps = conn.prepareStatement(subtractSQL)) {
+                        ps.setDouble(1, valor);
                         ps.setInt(2, contaOrigemId);
-                        ps.setDouble(3, valor);
-                        ps.setString(4, descricao);
                         ps.executeUpdate();
-                        
                     }
-                }
-                conn.commit();
-                session.setAttribute("msgSucesso", "Transação registrada com sucesso!");
-                response.sendRedirect("Movimentacao?limite=4");
 
+                    // Adiciona na destino
+                    try (PreparedStatement ps = conn.prepareStatement(addSQL)) {
+                        ps.setDouble(1, valor);
+                        ps.setInt(2, contaDestinoId);
+                        ps.executeUpdate();
+                    }
+
+                    // Registra movimentações
+                    insertMovimentacaoTransferencia(conn, contaOrigemId, contaDestinoId, valor, descricao);
+
+                    break;
+
+                default:
+                    session.setAttribute("msgErro", "Tipo de transação inválido!");
+                    response.sendRedirect("Movimentacao?limite=4");
+                    return;
             }
 
+            conn.commit();
+            session.setAttribute("msgSucesso", "Transação registrada com sucesso!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                if (request.getAttribute("conn") != null) {
+                    ((Connection) request.getAttribute("conn")).rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            session.setAttribute("msgErro", "Erro ao registrar movimentação: " + e.getMessage());
         }
 
-        
-        catch (Exception e) {
-            e.printStackTrace();
-            session.setAttribute("msgErro", "Erro ao registrar movimentação: " + e.getMessage());
-            response.sendRedirect("Movimentacao?limite=4");
+        response.sendRedirect("Movimentacao?limite=4");
+    }
+
+    private boolean contaOrigemPertenceAoUsuario(Connection conn, int contaOrigemId, int usuarioId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM CONTA WHERE ID = ? AND USUARIO_ID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, contaOrigemId);
+            ps.setInt(2, usuarioId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+    private Integer buscarContaDestinoId(Connection conn, String numeroConta) throws SQLException {
+        String sql = "SELECT ID FROM CONTA WHERE NUMERO_CONTA = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, numeroConta);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("ID");
+            }
+        }
+        return null;
+    }
+
+    private void insertMovimentacao(Connection conn, int contaId, String tipo, double valor, String descricao) throws SQLException {
+        String sql = "INSERT INTO MOVIMENTACAO (CONTA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, contaId);
+            ps.setString(2, tipo);
+            ps.setDouble(3, valor);
+            ps.setString(4, descricao);
+            ps.executeUpdate();
         }
     }
-   
-                    
-        protected void insertMovimentacao(Connection conn, int contaId, String tipoMovimentacao, double valor, String descricao, HttpSession session) throws SQLException {
-            String sql = "INSERT INTO MOVIMENTACAO (CONTA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, ?, ?, ?)";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setInt(1, contaId);
-                ps.setString(2, tipoMovimentacao);
-                ps.setDouble(3, valor);
-                ps.setString(4, descricao);
-                ps.executeUpdate();
-                conn.commit();
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-                session.setAttribute("msgErro", "Erro ao registrar movimentação: " + e.getMessage());
-                conn.rollback();
-            }
+
+    private void insertMovimentacaoTransferencia(Connection conn, int contaOrigemId, int contaDestinoId, double valor, String descricao) throws SQLException {
+        // Saída na origem
+        String sqlSaida = "INSERT INTO MOVIMENTACAO (CONTA_ID, CONTA_RELACIONADA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, ?, 'SAIDA', ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sqlSaida)) {
+            ps.setInt(1, contaOrigemId);
+            ps.setInt(2, contaDestinoId);
+            ps.setDouble(3, valor);
+            ps.setString(4, descricao);
+            ps.executeUpdate();
         }
-    
+
+        // Entrada na destino
+        String sqlEntrada = "INSERT INTO MOVIMENTACAO (CONTA_ID, CONTA_RELACIONADA_ID, TIPO_MOVIMENTACAO, VALOR, DESCRICAO) VALUES (?, ?, 'ENTRADA', ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sqlEntrada)) {
+            ps.setInt(1, contaDestinoId);
+            ps.setInt(2, contaOrigemId);
+            ps.setDouble(3, valor);
+            ps.setString(4, descricao);
+            ps.executeUpdate();
+        }
+    }
 }
