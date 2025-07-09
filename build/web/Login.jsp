@@ -12,6 +12,22 @@
   </style>
 </head>
 <body>
+     <%
+        String msgSucesso = (String) session.getAttribute("msgSucesso");
+        String msgErro = (String) session.getAttribute("msgErro");
+        if (msgSucesso != null) {
+    %>
+        <div class="alert alert-success text-center" role="alert"><%= msgSucesso %></div>
+    <%
+            session.removeAttribute("msgSucesso");
+        }
+        if (msgErro != null) {
+    %>
+        <div class="alert alert-danger text-center" role="alert"><%= msgErro %></div>
+    <%
+            session.removeAttribute("msgErro");
+        }
+    %>
   <% if ("sucesso".equals(request.getParameter("msg"))) { %>
     <div class="position-fixed top-0 start-50 translate-middle-x z-3 mt-3">
         <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
